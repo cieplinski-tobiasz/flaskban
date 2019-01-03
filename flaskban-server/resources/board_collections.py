@@ -38,6 +38,15 @@ class Boards(Resource):
                     {id: 1, name: "My Wednesday plan", visibility: public},
                     {id: 2, name: "Christmas preparation", visibility: private}
                   ]
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
         """
         pass
 
