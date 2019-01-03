@@ -94,22 +94,14 @@ class Boards(Resource):
                   type: list
                   required: true
                   example: []
-          403:
-            description: Returned when authentication token is not present or is invalid.
+          401:
+            description: Returned when authentication token is missing or invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
               }
         """
         pass
@@ -167,27 +159,23 @@ class Columns(Resource):
                   type: list
                   required: true
                   example: []
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to create the column
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to create the column/
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
-                message: 'Access forbidden - no permission to create the column.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+                message: 'Forbidden - no permission to create the column.'
               }
           404:
             description: Returned when no board with given id exists.
@@ -285,27 +273,23 @@ class Tasks(Resource):
                 user_id:
                   type: integer
                   example: 4
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to create the task
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to create the task.
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
-                message: 'Access forbidden - no permission to create the task.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+                message: 'Forbidden - no permission to create the task.'
               }
           404:
             description: Returned when no board with given id exists.

@@ -49,7 +49,7 @@ class Login(Resource):
                   type: string
                   required: true
             examples:
-              failure: {status: 401, message: Authentication failed - wrong username or password.}
+              failure: {status: 401, message: "Unauthorized - wrong username or password."}
         """
         pass
 

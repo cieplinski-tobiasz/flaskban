@@ -23,6 +23,24 @@ class Board(Resource):
             description: Board object.
             schema:
               $ref: '#/definitions/Board'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
+          403:
+            description: Returned when user has no permissions to see the board.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              No permission: {
+                status: 403,
+                message: 'Forbidden - no permission to retrieve the board.'
+              }
           404:
             description: Returned when no board with given id exists.
             schema:
@@ -31,28 +49,6 @@ class Board(Resource):
               No board: {
                 status: 404,
                 message: 'Not found - board with id 1 does not exist.'
-              }
-          403:
-            description: Returned when user has no permissions to see the board
-                         or when authentication token is not present or is invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              No permission: {
-                status: 403,
-                message: 'Access forbidden - no permission to retrieve the board.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
         """
         pass
@@ -92,6 +88,24 @@ class Board(Resource):
             description: Board modified successfully. Returns the modified board.
             schema:
               $ref: '#/definitions/Board'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
+          403:
+            description: Returned when user has no permissions to modify the board.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              No permission: {
+                status: 403,
+                message: 'Forbidden - no permission to modify the board.'
+              }
           404:
             description: Returned when no board with given id exists.
             schema:
@@ -100,28 +114,6 @@ class Board(Resource):
               No board: {
                 status: 404,
                 message: 'Not found - board with id 1 does not exist.'
-              }
-          403:
-            description: Returned when user has no permissions to modify the board
-                         or when authentication token is not present or is invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              No permission: {
-                status: 403,
-                message: 'Access forbidden - no permission to modify the board.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
         """
 
@@ -145,6 +137,24 @@ class Board(Resource):
         responses:
           204:
             description: Returned on successful deletion of the board. The response has no body.
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
+          403:
+            description: Returned when user has no permissions to delete the board.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              No permission: {
+                status: 403,
+                message: 'Forbidden - no permission to delete the board.'
+              }
           404:
             description: Returned when no board with given id exists.
             schema:
@@ -153,28 +163,6 @@ class Board(Resource):
               No board: {
                 status: 404,
                 message: 'Not found - board with id 1 does not exist.'
-              }
-          403:
-            description: Returned when user has no permissions to delete the board
-                         or when authentication token is not present or is invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              No permission: {
-                status: 403,
-                message: 'Access forbidden - no permission to delete the board.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
         """
 
@@ -206,27 +194,23 @@ class Column(Resource):
             description: Column successfully retrieved.
             schema:
               $ref: '#/definitions/Column'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to retrieve the column
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to retrieve the column.
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
-                message: 'Access forbidden - no permission to retrieve the column.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+                message: 'Forbidden - no permission to retrieve the column.'
               }
           404:
             description: Returned when no board or column with given id exists.
@@ -269,27 +253,23 @@ class Column(Resource):
         responses:
           204:
             description: Column successfully deleted. The response has no body.
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to delete the column
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to delete the column.
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
-                message: 'Access forbidden - no permission to delete the column.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+                message: 'Forbidden - no permission to delete the column.'
               }
           404:
             description: Returned when no board or column with given id exists.
@@ -340,11 +320,29 @@ class Column(Resource):
                   type: string
                   example: Done
         responses:
-        responses:
           200:
             description: Column modified successfully. Returns the modified column.
             schema:
               $ref: '#/definitions/Column'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
+          403:
+            description: Returned when user has no permissions to modify the column
+                         or when authentication token is not present or is invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              No permission: {
+                status: 403,
+                message: 'Forbidden - no permission to modify the column.'
+              }
           404:
             description: Returned when no board or column with given id exists.
             schema:
@@ -357,28 +355,6 @@ class Column(Resource):
               No column: {
                 status: 404,
                 message: 'Not found - column with id 1 does not exist.'
-              }
-          403:
-            description: Returned when user has no permissions to modify the column
-                         or when authentication token is not present or is invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              No permission: {
-                status: 403,
-                message: 'Access forbidden - no permission to modify the column.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
         """
         pass
@@ -411,27 +387,23 @@ class Task(Resource):
             description: Task successfully retrieved.
             schema:
               $ref: '#/definitions/Task'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to retrieve the task
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to retrieve the task.
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
-                message: 'Access forbidden - no permission to retrieve the task.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
+                message: 'Forbidden - no permission to retrieve the task.'
               }
           404:
             description: Returned when no board or task with given id exists.
@@ -473,27 +445,23 @@ class Task(Resource):
         responses:
           204:
             description: Task successfully deleted. The response has no body.
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
           403:
-            description: Returned when user has no permissions to delete the task
-                         or when authentication token is not present or is invalid.
+            description: Returned when user has no permissions to delete the task.
             schema:
               $ref: '#/definitions/Error'
             examples:
               No permission: {
                 status: 403,
                 message: 'Access forbidden - no permission to delete the task.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board or task with given id exists.
@@ -559,6 +527,24 @@ class Task(Resource):
             description: Task modified successfully. Returns the modified task.
             schema:
               $ref: '#/definitions/Task'
+          401:
+            description: Returned when authentication token is missing or invalid.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid token: {
+                status: 401,
+                message: 'Unauthorized - no valid token present.'
+              }
+          403:
+            description: Returned when user has no permissions to modify the task.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              No permission: {
+                status: 403,
+                message: 'Access forbidden - no permission to modify the task.'
+              }
           404:
             description: Returned when no board or task with given id exists.
             schema:
@@ -571,28 +557,6 @@ class Task(Resource):
               No task: {
                 status: 404,
                 message: 'Not found - task with id 1 does not exist.'
-              }
-          403:
-            description: Returned when user has no permissions to modify the task
-                         or when authentication token is not present or is invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              No permission: {
-                status: 403,
-                message: 'Access forbidden - no permission to modify the task.'
-              }
-              Token missing: {
-                status: 403,
-                message: 'Access forbidden - authentication token missing.'
-              }
-              Token invalid: {
-                status: 403,
-                message: 'Access forbidden - authentication token corrupted.'
-              }
-              Token expired: {
-                status: 403,
-                message: 'Access forbidden - authentication token expired.'
               }
           409:
             description: Returned when no column with given column_id exists, or user with given user_id
