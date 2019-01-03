@@ -32,6 +32,7 @@ class Login(Resource):
           200:
             description: Successful authentication resulting in the authentication token.
             schema:
+              id: Token
               properties:
                 token:
                   type: string
@@ -74,9 +75,6 @@ class Register(Resource):
           201:
             description: Account successfully created. Response contains the authentication token.
             schema:
-              properties:
-                token:
-                  type: string
-                  required: true
+              $ref: '#/definitions/Token'
         """
         pass
