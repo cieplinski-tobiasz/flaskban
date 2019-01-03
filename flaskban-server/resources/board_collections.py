@@ -4,11 +4,14 @@ from flask_restful import Resource
 class Boards(Resource):
     def get(self):
         """
-        List public boards.
+        List boards.
         ---
-        description: Returns a list of boards. The list does not include private boards.
+        description: Returns a list of boards, that user has access to, i.e. public boards and private boards
+                     that allowed access to given user. Requires an authentication token in Authorization header.
         tags:
           - board
+        security:
+          -
         parameters:
           - in: query
             type: integer
@@ -22,7 +25,9 @@ class Boards(Resource):
             description: Maximum number of results returned (acceptable values are 1 to 1000).
         responses:
           200:
-            description: List of boards.
+            description: List of boards. The board are presented in simplified name -
+                         only "id", "name" and "visibility" are present in the result.
+                         Endpoint for single board should be used in order to retrieve columns.
             schema:
               id: BoardList
               properties:
@@ -30,12 +35,8 @@ class Boards(Resource):
                   type: list
                   required: true
                   example: [
-                    {id: 1, name: "My Wednesday plan", visibility: public, columns: []},
-                    {id: 2, name: "Christmas preparation", visibility: public, columns: [
-                      {id: 1, name: "To do", tasks: [
-                        {id: 1, column_id: 1, user_id: 3, name: 'Dress the Christmas tree'}
-                      ]}
-                    ]}
+                    {id: 1, name: "My Wednesday plan", visibility: public},
+                    {id: 2, name: "Christmas preparation", visibility: private}
                   ]
         """
         pass
