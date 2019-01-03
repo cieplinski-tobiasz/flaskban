@@ -7,7 +7,7 @@ class Board(Resource):
         Retrieve the board.
         ---
         description: Returns board with given id, if user requesting it has permissions to see it.
-                     Requires a JWT Token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - board
         security:
@@ -34,7 +34,7 @@ class Board(Resource):
               }
           403:
             description: Returned when user has no permissions to see the board
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -44,15 +44,15 @@ class Board(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
         """
         pass
@@ -63,7 +63,7 @@ class Board(Resource):
         ---
         description: Changes the properties of board, if user has permissions to do it.
                      Only name and visibility can be changed - extra fields are ignored.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - board
         security:
@@ -103,7 +103,7 @@ class Board(Resource):
               }
           403:
             description: Returned when user has no permissions to modify the board
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -113,15 +113,15 @@ class Board(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
         """
 
@@ -131,7 +131,7 @@ class Board(Resource):
         ---
         description: Deletes the board, if user has permissions to do it.
                      All the tasks and columns in the board are also deleted.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - board
         security:
@@ -156,7 +156,7 @@ class Board(Resource):
               }
           403:
             description: Returned when user has no permissions to delete the board
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -166,15 +166,15 @@ class Board(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
         """
 
@@ -185,7 +185,7 @@ class Column(Resource):
         Retrieve the column.
         ---
         description: Returns column with given id, if user requesting it has permissions to do it.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - column
         security:
@@ -208,7 +208,7 @@ class Column(Resource):
               $ref: '#/definitions/Column'
           403:
             description: Returned when user has no permissions to retrieve the column
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -218,15 +218,15 @@ class Column(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board or column with given id exists.
@@ -250,7 +250,7 @@ class Column(Resource):
         ---
         description: Deletes the column, if user has permissions to do it.
                      All the tasks in the column are also deleted.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - column
         security:
@@ -271,7 +271,7 @@ class Column(Resource):
             description: Column successfully deleted. The response has no body.
           403:
             description: Returned when user has no permissions to delete the column
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -281,15 +281,15 @@ class Column(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board or column with given id exists.
@@ -313,7 +313,7 @@ class Column(Resource):
         ---
         description: Changes the properties of the column, if user has permissions to do it.
                      Only name can be changed - extra fields are ignored.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - column
         security:
@@ -360,7 +360,7 @@ class Column(Resource):
               }
           403:
             description: Returned when user has no permissions to modify the column
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -370,15 +370,15 @@ class Column(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
         """
         pass
@@ -390,7 +390,7 @@ class Task(Resource):
         Retrieve the task.
         ---
         description: Returns task with given id, if user requesting it has permissions to do it.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - task
         security:
@@ -413,7 +413,7 @@ class Task(Resource):
               $ref: '#/definitions/Task'
           403:
             description: Returned when user has no permissions to retrieve the task
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -423,15 +423,15 @@ class Task(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board or task with given id exists.
@@ -454,7 +454,7 @@ class Task(Resource):
         Delete the task.
         ---
         description: Deletes the task, if user has permissions to do it.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - task
         security:
@@ -475,7 +475,7 @@ class Task(Resource):
             description: Task successfully deleted. The response has no body.
           403:
             description: Returned when user has no permissions to delete the task
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -485,15 +485,15 @@ class Task(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board or task with given id exists.
@@ -517,7 +517,7 @@ class Task(Resource):
         ---
         description: Changes the properties of the task, if user has permissions to do it.
                      Every field except id can be changed.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - task
         security:
@@ -574,7 +574,7 @@ class Task(Resource):
               }
           403:
             description: Returned when user has no permissions to modify the task
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -584,15 +584,15 @@ class Task(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           409:
             description: Returned when no column with given column_id exists, or user with given user_id

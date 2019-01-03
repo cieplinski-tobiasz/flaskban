@@ -46,7 +46,7 @@ class Boards(Resource):
         ---
         description: Creates a new, empty kanban board and makes the user who created it an administrator of the board.
                      Private boards cannot be seen by people without access, while public boards may be seen by anybody.
-                     Requires a JWT Token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - board
         security:
@@ -95,21 +95,21 @@ class Boards(Resource):
                   required: true
                   example: []
           403:
-            description: Returned when JWT token is not present or is invalid.
+            description: Returned when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
         """
         pass
@@ -121,7 +121,7 @@ class Columns(Resource):
         Create new column.
         ---
         description: Creates a new column in the board, if user has the permissions to do it.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - column
         security:
@@ -169,7 +169,7 @@ class Columns(Resource):
                   example: []
           403:
             description: Returned when user has no permissions to create the column
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -179,15 +179,15 @@ class Columns(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board with given id exists.
@@ -219,7 +219,7 @@ class Tasks(Resource):
         description: Creates new task if the user has the permissions to do it.
                      Task is associated with board and column, i.e. task can belong to *one* column only,
                      and to *one* board only.
-                     Requires a JWT token in Authorization header.
+                     Requires an authentication token in Authorization header.
         tags:
           - task
         security:
@@ -287,7 +287,7 @@ class Tasks(Resource):
                   example: 4
           403:
             description: Returned when user has no permissions to create the task
-                         or when JWT token is not present or is invalid.
+                         or when authentication token is not present or is invalid.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -297,15 +297,15 @@ class Tasks(Resource):
               }
               Token missing: {
                 status: 403,
-                message: 'Access forbidden - JWT token missing.'
+                message: 'Access forbidden - authentication token missing.'
               }
               Token invalid: {
                 status: 403,
-                message: 'Access forbidden - JWT token corrupted.'
+                message: 'Access forbidden - authentication token corrupted.'
               }
               Token expired: {
                 status: 403,
-                message: 'Access forbidden - JWT token expired.'
+                message: 'Access forbidden - authentication token expired.'
               }
           404:
             description: Returned when no board with given id exists.

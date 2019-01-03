@@ -6,7 +6,7 @@ class Login(Resource):
         """
         Authenticate user.
         ---
-        description: Supplies registered user with JWT token.
+        description: Supplies registered user with the authentication token.
         tags:
           - auth
         parameters:
@@ -30,10 +30,10 @@ class Login(Resource):
                   required: true
         responses:
           200:
-            description: Successful authentication resulting in a JWT token.
+            description: Successful authentication resulting in the authentication token.
             schema:
               properties:
-                jwt:
+                token:
                   type: string
                   required: true
                   example: eyJh.eyJzdWIiOiIxMjM0NTY3ODkaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZg
@@ -60,7 +60,7 @@ class Register(Resource):
         """
         Create new account.
         ---
-        description: Creates an account and returns JWT token.
+        description: Creates an account and returns the authentication token.
         tags:
           - auth
         parameters:
@@ -72,10 +72,10 @@ class Register(Resource):
               $ref: '#/definitions/Credentials'
         responses:
           201:
-            description: Account successfully created. Response contains a JWT to use.
+            description: Account successfully created. Response contains the authentication token.
             schema:
               properties:
-                jwt:
+                token:
                   type: string
                   required: true
         """
