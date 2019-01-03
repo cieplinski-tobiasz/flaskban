@@ -1,6 +1,6 @@
 from resources.auth import Login, Register
-from resources.board_collections import *
-from resources.board_resources import *
+from resources.collections import *
+from resources.entities import *
 
 from flask import Flask
 from flask_restful import Api
