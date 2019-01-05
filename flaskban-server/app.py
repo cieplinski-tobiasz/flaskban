@@ -1,6 +1,7 @@
 from resources.auth import Login, Register
 from resources.collections import *
 from resources.entities import *
+from resources.perms import *
 
 from flask import Flask
 from flask_restful import Api
@@ -25,6 +26,8 @@ api.add_resource(Column, '/boards/<int:board_id>/columns/<int:column_id>')
 
 api.add_resource(Tasks, '/boards/<int:board_id>/tasks')
 api.add_resource(Task, '/boards/<int:board_id>/tasks/<int:task_id>')
+
+api.add_resource(Permissions, '/permissions')
 
 if __name__ == '__main__':
     app.run()
