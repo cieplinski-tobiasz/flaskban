@@ -28,6 +28,7 @@ api.add_resource(Tasks, '/boards/<int:board_id>/tasks')
 api.add_resource(Task, '/boards/<int:board_id>/tasks/<int:task_id>')
 
 api.add_resource(Permissions, '/permissions')
+api.add_resource(UserPermissions, '/boards/<int:board_id>/permissions/<int:user_id>')
 
 if __name__ == '__main__':
     app.run()
