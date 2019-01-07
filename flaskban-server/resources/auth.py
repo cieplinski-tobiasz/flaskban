@@ -57,7 +57,6 @@ class Login(Resource):
 
 class Register(Resource):
     def post(self):
-        # TODO [DOCS]: account with given email or username already exists
         """
         Create new account.
         ---
@@ -76,5 +75,14 @@ class Register(Resource):
             description: Account successfully created. Response contains the authentication token.
             schema:
               $ref: '#/definitions/Token'
+          409:
+            description: Returned when user with given email or username already exists.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Already exists: {
+                status: 409,
+                message: "Conflict - user already exists."
+              }
         """
         pass
