@@ -1,7 +1,7 @@
 from resources.auth import Login, Register
-from resources.collections import *
-from resources.entities import *
-from resources.perms import *
+from resources.collections import Boards, Columns, Tasks
+from resources.entities import Board, Column, Task
+from resources.perms import Permissions, UserPermissions
 
 from flask import Flask
 from flask_restful import Api
