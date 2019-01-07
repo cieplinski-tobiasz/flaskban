@@ -38,7 +38,3 @@ def create_app():
     db.create_all(app=app)
 
     return app
-
-
-
-
