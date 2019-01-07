@@ -206,7 +206,7 @@ class LoginTest(TestCase):
 
     @mock.patch('models.users.create_access_token', return_value='test_token')
     @mock.patch('models.users.pbkdf2_sha256')
-    def test_login_returns_create_access_token(self, mocked_pbkdf2, mocked_cat):
+    def test_login_returns_create_access_token(self, mocked_pbkdf2, _):
         user = mock.Mock()
         user.name = 'test'
         User.find_by_name = mock.Mock(return_value=user)
