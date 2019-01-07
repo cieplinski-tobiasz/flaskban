@@ -1,6 +1,6 @@
 from config import get_config
 
-from extensions import api, db, swagger
+from extensions import api, db, swagger, jwt
 
 from resources.auth import Login, Register
 from resources.collections import Boards, Columns, Tasks
@@ -8,6 +8,11 @@ from resources.entities import Board, Column, Task
 from resources.perms import Permissions, UserPermissions
 
 from flask import Flask
+
+
+def _init_extensions(app, *exts):
+    for ext in exts:
+        ext.init_app(app)
 
 
 def create_app(config_name):
@@ -29,11 +34,7 @@ def create_app(config_name):
     api.add_resource(Permissions, '/permissions')
     api.add_resource(UserPermissions, '/boards/<int:board_id>/permissions/<int:user_id>')
 
-    api.init_app(app)
-
-    swagger.init_app(app)
-
-    db.init_app(app)
+    _init_extensions(app, api, swagger, db, jwt)
 
     if config_name == 'dev':
         db.drop_all(app=app)
