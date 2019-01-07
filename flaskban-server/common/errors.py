@@ -1,3 +1,7 @@
+def make_error_response(status, message):
+    return {'status': status, 'message': message}, status
+
+
 class ClientError(Exception):
     def __init__(self, message):
         self.message = message
