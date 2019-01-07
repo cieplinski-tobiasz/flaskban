@@ -9,3 +9,7 @@ class InvalidDataError(ClientError):
 
 class AlreadyExistsError(ClientError):
     pass
+
+
+class UnauthorizedError(ClientError):
+    pass
