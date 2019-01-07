@@ -1,9 +1,10 @@
+from flask_jwt_extended import create_access_token
 from marshmallow import Schema, fields, post_load, validates_schema, ValidationError
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import exists
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from common.errors import AlreadyExistsError, InvalidDataError
+from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
 from extensions import db
 
 
@@ -82,3 +83,12 @@ class UserLoginSchema(Schema):
 
 register_schema = UserRegisterSchema()
 login_schema = UserLoginSchema()
+
+
+def login(user):
+    db_user = User.find_by_name(user.name) if user.name else User.find_by_email(user.email)
+
+    if not db_user or not pbkdf2_sha256.verify(user.password, db_user.password):
+        raise UnauthorizedError('Wrong credentials')
+
+    return create_access_token(identity=db_user.id_)

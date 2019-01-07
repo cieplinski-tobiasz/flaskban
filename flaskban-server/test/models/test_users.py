@@ -1,7 +1,7 @@
 import unittest.mock as mock
 
-from common.errors import AlreadyExistsError, InvalidDataError
-from models.users import User, UserRegisterSchema, UserLoginSchema
+from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
+from models.users import User, UserRegisterSchema, UserLoginSchema, login
 from unittest import TestCase
 from marshmallow.exceptions import ValidationError
 
@@ -150,3 +150,68 @@ class UserLoginSchemaTest(TestCase):
 
         self.assertEqual(result.email, 'test@ab.com')
         self.assertEqual(result.password, 'pwd')
+
+
+class LoginTest(TestCase):
+    def test_login_raises_when_no_user_with_name(self):
+        User.find_by_name = mock.Mock(return_value=None)
+        user = mock.Mock()
+        user.name = 'test'
+
+        with self.assertRaises(UnauthorizedError):
+            login(user)
+
+    def test_login_raises_when_no_user_with_email(self):
+        User.find_by_email = mock.Mock(return_value=None)
+        user = mock.Mock()
+        user.name = None
+        user.email = 'test@abc.com'
+
+        with self.assertRaises(UnauthorizedError):
+            login(user)
+
+    @mock.patch('models.users.pbkdf2_sha256')
+    def test_login_raises_when_bad_password(self, mocked_pbkdf2):
+        user = mock.Mock()
+        user.name = 'test'
+        User.find_by_name = mock.Mock(return_value=user)
+        mocked_pbkdf2.verify.return_value = False
+
+        with self.assertRaises(UnauthorizedError):
+            login(user)
+
+    @mock.patch('models.users.create_access_token')
+    @mock.patch('models.users.pbkdf2_sha256')
+    def test_login_calls_create_access_token(self, mocked_pbkdf2, mocked_cat):
+        user = mock.Mock()
+        user.name = 'test'
+        User.find_by_name = mock.Mock(return_value=user)
+        mocked_pbkdf2.verify.return_value = True
+
+        login(user)
+
+        mocked_cat.assert_called()
+
+    @mock.patch('models.users.create_access_token')
+    @mock.patch('models.users.pbkdf2_sha256')
+    def test_login_calls_verify(self, mocked_pbkdf2, _):
+        user = mock.Mock()
+        user.name = 'test'
+        User.find_by_name = mock.Mock(return_value=user)
+        mocked_pbkdf2.verify.return_value = True
+
+        login(user)
+
+        mocked_pbkdf2.verify.assert_called()
+
+    @mock.patch('models.users.create_access_token', return_value='test_token')
+    @mock.patch('models.users.pbkdf2_sha256')
+    def test_login_returns_create_access_token(self, mocked_pbkdf2, mocked_cat):
+        user = mock.Mock()
+        user.name = 'test'
+        User.find_by_name = mock.Mock(return_value=user)
+        mocked_pbkdf2.verify.return_value = True
+
+        result = login(user)
+
+        self.assertEqual(result, 'test_token')
