@@ -1,3 +1,5 @@
+import config
+
 from resources.auth import Login, Register
 from resources.collections import Boards, Columns, Tasks
 from resources.entities import Board, Column, Task
@@ -8,12 +10,11 @@ from flask_restful import Api
 from flasgger import Swagger
 
 app = Flask(__name__)
-api = Api(app)
-app.config['SWAGGER'] = {
-    'title': 'FlaskBan',
-    'uiversion': 3,
-}
+app.config.from_object(config.DevelopmentConfig)
+
 swag = Swagger(app)
+
+api = Api(app)
 
 api.add_resource(Login, '/auth/login')
 api.add_resource(Register, '/auth/register')
