@@ -1,5 +1,6 @@
 import config
-from extensions import api, swagger
+
+from extensions import api, db, swagger
 
 from resources.auth import Login, Register
 from resources.collections import Boards, Columns, Tasks
@@ -15,6 +16,7 @@ def create_app():
 
     api.init_app(app)
     swagger.init_app(app)
+    db.init_app(app)
 
     api.add_resource(Login, '/auth/login')
     api.add_resource(Register, '/auth/register')
