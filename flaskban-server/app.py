@@ -1,4 +1,4 @@
-import config
+from config import get_config
 
 from extensions import api, db, swagger
 
@@ -10,9 +10,9 @@ from resources.perms import Permissions, UserPermissions
 from flask import Flask
 
 
-def create_app():
+def create_app(config_name):
     app = Flask(__name__)
-    app.config.from_object(config.DevelopmentConfig)
+    app.config.from_object(get_config(config_name))
 
     api.add_resource(Login, '/auth/login')
     api.add_resource(Register, '/auth/register')
@@ -34,7 +34,9 @@ def create_app():
     swagger.init_app(app)
 
     db.init_app(app)
-    db.drop_all(app=app)
-    db.create_all(app=app)
+
+    if config_name == 'dev':
+        db.drop_all(app=app)
+        db.create_all(app=app)
 
     return app
