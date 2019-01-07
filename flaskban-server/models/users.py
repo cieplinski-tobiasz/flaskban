@@ -39,10 +39,10 @@ class User(db.Model):
 
     def save(self):
         if not self.name or not self._password or not self.email:
-            raise InvalidDataError('Required fields are not present.')
+            raise InvalidDataError('Required fields are not present')
 
         if self._already_saved(db.session):
-            raise AlreadyExistsError('User already exists.')
+            raise AlreadyExistsError('User already exists')
 
         db.session.add(self)
         db.session.commit()
@@ -74,7 +74,7 @@ class UserLoginSchema(Schema):
     @validates_schema
     def validate(self, data):
         if 'name' not in data and 'email' not in data:
-            raise ValidationError('Either username or email must be present.')
+            raise ValidationError('Either username or email must be present')
 
     @post_load
     def make_user(self, data):
@@ -93,6 +93,6 @@ def login(user):
     db_user = User.find_by_name(user.name) if user.name else User.find_by_email(user.email)
 
     if not db_user or not pbkdf2_sha256.verify(user.password, db_user.password):
-        raise UnauthorizedError('Wrong username or password.')
+        raise UnauthorizedError('Wrong username or password')
 
     return create_access_token(identity=db_user.id_)
