@@ -6,4 +6,5 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

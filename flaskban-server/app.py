@@ -14,9 +14,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(config.DevelopmentConfig)
 
-    swagger.init_app(app)
-    db.init_app(app)
-
     api.add_resource(Login, '/auth/login')
     api.add_resource(Register, '/auth/register')
 
@@ -33,6 +30,12 @@ def create_app():
     api.add_resource(UserPermissions, '/boards/<int:board_id>/permissions/<int:user_id>')
 
     api.init_app(app)
+
+    swagger.init_app(app)
+
+    db.init_app(app)
+    db.drop_all(app=app)
+    db.create_all(app=app)
 
     return app
 
