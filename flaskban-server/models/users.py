@@ -85,6 +85,10 @@ register_schema = UserRegisterSchema()
 login_schema = UserLoginSchema()
 
 
+def register(user):
+    user.save()
+
+
 def login(user):
     db_user = User.find_by_name(user.name) if user.name else User.find_by_email(user.email)
 

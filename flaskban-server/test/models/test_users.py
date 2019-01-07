@@ -1,7 +1,7 @@
 import unittest.mock as mock
 
 from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
-from models.users import User, UserRegisterSchema, UserLoginSchema, login
+from models.users import User, UserRegisterSchema, UserLoginSchema, login, register
 from unittest import TestCase
 from marshmallow.exceptions import ValidationError
 
@@ -215,3 +215,12 @@ class LoginTest(TestCase):
         result = login(user)
 
         self.assertEqual(result, 'test_token')
+
+
+class RegisterTest(TestCase):
+    def test_register_delegates_to_save(self):
+        user = mock.Mock()
+
+        register(user)
+
+        user.save.assert_called()
