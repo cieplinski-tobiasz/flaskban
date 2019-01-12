@@ -24,6 +24,41 @@ def make_error_response(status, message):
     return {'status': status, 'message': message}, status
 
 
+def handle_error(*errors, status=HTTPStatus.INTERNAL_SERVER_ERROR, message=None):
+    """
+    Handles given errors by returning an error response consisting of given status and message.
+
+    If during the execution of wrapped function an error will be raised,
+    and the error is present in the *errors list,
+    the error will be caught and error message will be returned
+    instead of raising the error.
+
+    Args:
+        *errors (Exception): list of Exception classes to be handled.
+        status (int): HTTP status used in the error message.
+        message (str): Message used in the error message.
+
+    Returns:
+        function: wraps function in a given way:
+                    - if exception from *errors is raised tuple from make_error_response function
+                    - if no exception is raised, fun return value will be returned
+    """
+    def wrapper(fun):
+        @wraps(fun)
+        def handler(*args, **kwargs):
+            try:
+                return fun(*args, **kwargs)
+            except errors as caught:
+                if not message and hasattr(caught, 'message'):
+                    return make_error_response(status, caught.message)
+
+                return make_error_response(status, message)
+
+        return handler
+
+    return wrapper
+
+
 class ClientError(Exception):
     """
     Base class for all exceptions raised because of client-side error.
