@@ -4,7 +4,7 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import exists
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
+from errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
 from extensions import DB
 
 

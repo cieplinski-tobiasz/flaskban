@@ -6,11 +6,17 @@ from marshmallow import ValidationError
 from werkzeug.exceptions import BadRequest
 
 from models.users import LOGIN_SCHEMA, REGISTER_SCHEMA, login, register
-from common.errors import InvalidDataError, AlreadyExistsError, \
-    UnauthorizedError, make_error_response
+from errors import InvalidDataError, AlreadyExistsError, \
+    UnauthorizedError, handle_error
 
 
 class Login(Resource):
+    method_decorators = [
+        handle_error(BadRequest, ValidationError, InvalidDataError,
+                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body')
+    ]
+
+    @handle_error(UnauthorizedError, status=HTTPStatus.UNAUTHORIZED)
     def post(self):
         """
         Authenticate user.
@@ -72,18 +78,19 @@ class Login(Resource):
             examples:
               failure: {status: 401, message: "Wrong username or password"}
         """
-        try:
-            body = request.get_json()
-            user = LOGIN_SCHEMA.load(body)
-            token = login(user)
-            return {'token': token}, HTTPStatus.OK
-        except (BadRequest, ValidationError, InvalidDataError):
-            return make_error_response(HTTPStatus.BAD_REQUEST, 'Invalid request body')
-        except UnauthorizedError as ex:
-            return make_error_response(HTTPStatus.UNAUTHORIZED, ex.message)
+        body = request.get_json()
+        user = LOGIN_SCHEMA.load(body)
+        token = login(user)
+        return {'token': token}, HTTPStatus.OK
 
 
 class Register(Resource):
+    method_decorators = [
+        handle_error(BadRequest, ValidationError, InvalidDataError,
+                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body')
+    ]
+
+    @handle_error(AlreadyExistsError, status=HTTPStatus.CONFLICT)
     def post(self):
         """
         Create new account.
@@ -123,13 +130,8 @@ class Register(Resource):
                 message: "User already exists"
               }
         """
-        try:
-            body = request.get_json()
-            user_pwd_hash, user_no_pwd_hash = REGISTER_SCHEMA.load(body), LOGIN_SCHEMA.load(body)
-            register(user_pwd_hash)
-            token = login(user_no_pwd_hash)
-            return {'token': token}, HTTPStatus.CREATED
-        except (BadRequest, ValidationError, InvalidDataError):
-            return make_error_response(HTTPStatus.BAD_REQUEST, 'Invalid request body')
-        except AlreadyExistsError as ex:
-            return make_error_response(HTTPStatus.CONFLICT, ex.message)
+        body = request.get_json()
+        user_pwd_hash, user_no_pwd_hash = REGISTER_SCHEMA.load(body), LOGIN_SCHEMA.load(body)
+        register(user_pwd_hash)
+        token = login(user_no_pwd_hash)
+        return {'token': token}, HTTPStatus.CREATED

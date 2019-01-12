@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from marshmallow.exceptions import ValidationError
 
-from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
+from errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
 from models.users import User, UserRegisterSchema, UserLoginSchema, login, register
 
 

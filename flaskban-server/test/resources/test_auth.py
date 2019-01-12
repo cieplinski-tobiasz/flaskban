@@ -5,7 +5,7 @@ from http import HTTPStatus
 from marshmallow.exceptions import ValidationError
 from werkzeug.exceptions import BadRequest
 
-from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
+from errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
 from resources.auth import Login, Register
 
 
