@@ -1,9 +1,10 @@
 import unittest.mock as mock
+from unittest import TestCase
+
+from marshmallow.exceptions import ValidationError
 
 from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
 from models.users import User, UserRegisterSchema, UserLoginSchema, login, register
-from unittest import TestCase
-from marshmallow.exceptions import ValidationError
 
 
 class UserTest(TestCase):
@@ -93,7 +94,8 @@ class UserRegisterSchemaTest(TestCase):
     def test_loads_raises_when_extra_data(self):
         with self.assertRaises(ValidationError):
             uut = UserRegisterSchema()
-            uut.load({'username': 'john', 'password': 'pwd', 'email': 'test@ab.com', 'extra': 'data'})
+            uut.load({'username': 'john', 'password': 'pwd',
+                      'email': 'test@ab.com', 'extra': 'data'})
 
     def test_loads_returns_correct_user_with_hashed_password(self):
         uut = UserRegisterSchema()
@@ -124,7 +126,8 @@ class UserLoginSchemaTest(TestCase):
     def test_loads_raises_when_extra_data(self):
         with self.assertRaises(ValidationError):
             uut = UserLoginSchema()
-            uut.load({'username': 'john', 'password': 'pwd', 'email': 'test@ab.com', 'extra': 'data'})
+            uut.load({'username': 'john', 'password': 'pwd',
+                      'email': 'test@ab.com', 'extra': 'data'})
 
     def test_loads_returns_correct_user_with_not_hashed_password(self):
         uut = UserLoginSchema()

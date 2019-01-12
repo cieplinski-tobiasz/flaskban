@@ -3,7 +3,7 @@ from flasgger import Swagger
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
-api = Api()
-swagger = Swagger()
-db = SQLAlchemy()
-jwt = JWTManager()
+API = Api()
+SWAGGER = Swagger()
+DB = SQLAlchemy()
+JWT = JWTManager()

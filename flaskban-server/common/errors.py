@@ -4,6 +4,7 @@ def make_error_response(status, message):
 
 class ClientError(Exception):
     def __init__(self, message):
+        super().__init__()
         self.message = message
 
 

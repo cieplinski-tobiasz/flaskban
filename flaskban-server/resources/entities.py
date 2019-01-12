@@ -51,7 +51,6 @@ class Board(Resource):
                 message: 'Not found - board with id 1 does not exist.'
               }
         """
-        pass
 
     def patch(self, board_id):
         """
@@ -72,7 +71,8 @@ class Board(Resource):
             description: ID of the board.
           - in: body
             name: body
-            description: The only fields taken in consideration are name and visibility. Extra fields are ignored.
+            description: The only fields taken in consideration
+                         are name and visibility. Extra fields are ignored.
                          If no fields are present, the board is not modified.
             schema:
               properties:
@@ -226,7 +226,6 @@ class Column(Resource):
                 message: 'Not found - column with id 1 does not exist.'
               }
         """
-        pass
 
     def delete(self):
         """
@@ -285,7 +284,6 @@ class Column(Resource):
                 message: 'Not found - column with id 1 does not exist.'
               }
         """
-        pass
 
     def patch(self):
         """
@@ -357,7 +355,6 @@ class Column(Resource):
                 message: 'Not found - column with id 1 does not exist.'
               }
         """
-        pass
 
 
 class Task(Resource):
@@ -419,7 +416,6 @@ class Task(Resource):
                 message: 'Not found - task with id 1 does not exist.'
               }
         """
-        pass
 
     def delete(self):
         """
@@ -477,7 +473,6 @@ class Task(Resource):
                 message: 'Not found - task with id 1 does not exist.'
               }
         """
-        pass
 
     def patch(self):
         """
@@ -504,9 +499,11 @@ class Task(Resource):
           - in: body
             name: body
             required: true
-            description: The fields taken into consideration are "column_id", "description", "name" and "user_id".
+            description: The fields taken into consideration are
+                         "column_id", "description", "name" and "user_id".
                          Extra fields are ignored. User id and column id must be valid,
-                         i. e. column must exist within the board and user with given id must have permissions
+                         i. e. column must exist within the board
+                         and user with given id must have permissions
                          to be assigned to task.
             schema:
               properties:
@@ -559,7 +556,8 @@ class Task(Resource):
                 message: 'Not found - task with id 1 does not exist.'
               }
           409:
-            description: Returned when no column with given column_id exists, or user with given user_id
+            description: Returned when no column with
+                         given column_id exists, or user with given user_id
                          does not exist or is not permitted to be assigned to a task.
             schema:
               $ref: '#/definitions/Error'
@@ -577,4 +575,3 @@ class Task(Resource):
                 message: 'Insufficient permissions - user with id 1 cannot be assigned to a task.'
               }
         """
-        pass

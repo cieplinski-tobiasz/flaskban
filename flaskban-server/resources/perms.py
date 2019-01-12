@@ -6,9 +6,11 @@ class Permissions(Resource):
         """
         List permissions.
         ---
-        description: Returns a list of all permissions that can be assigned to a user within a board.
-                     Assigned permissions must be present in the list, i.e. a permission
-                     that is not listed on returned list cannot be assigned to any user.
+        description: Returns a list of all permissions
+                     that can be assigned to a user within a board.
+                     Assigned permissions must be present in the list,
+                     i.e. a permission that is not listed on returned list
+                     cannot be assigned to any user.
                      Requires an authentication token in Authorization header.
         tags:
           - permission
@@ -34,7 +36,6 @@ class Permissions(Resource):
                 message: 'Unauthorized - no valid token present.'
               }
         """
-        pass
 
 
 class UserPermissions(Resource):
@@ -102,7 +103,6 @@ class UserPermissions(Resource):
                 message: 'Not found - user with id 1 does not exist.'
               }
         """
-        pass
 
     def put(self):
         """
@@ -111,7 +111,8 @@ class UserPermissions(Resource):
         description: Assigns permissions for given user within the board,
                      if the user requesting it has permissions to do it.
                      If user had any permissions assigned earlier, they will be overwritten.
-                     Permissions must be valid, i.e. must be present in the list returned by /permissions GET endpoint.
+                     Permissions must be valid, i.e. must be present
+                     in the list returned by /permissions GET endpoint.
                      Requires an authentication token in Authorization header.
         tags:
           - permission
@@ -159,7 +160,8 @@ class UserPermissions(Resource):
                 message: 'Forbidden - no permission to assign the permissions.'
               }
           404:
-            description: Returned when no board or user with given id exists, or when user with given id
+            description: Returned when no board or user
+                         with given id exists, or when user with given id
                          has no permissions assigned.
             schema:
               $ref: '#/definitions/Error'
@@ -186,7 +188,6 @@ class UserPermissions(Resource):
                 message: 'Conflict - permissions with ids: [7344, 54367] do not exist.'
               }
         """
-        pass
 
     def delete(self):
         """
@@ -232,7 +233,8 @@ class UserPermissions(Resource):
                 message: 'Forbidden - no permission to delete the permissions.'
               }
           404:
-            description: Returned when no board or user with given id exists, or when user has no permissions assigned.
+            description: Returned when no board or user with
+                         given id exists, or when user has no permissions assigned.
             schema:
               $ref: '#/definitions/Error'
             examples:
@@ -249,4 +251,3 @@ class UserPermissions(Resource):
                 message: 'Not found - user with id 1 has no permissions assigned.'
               }
         """
-        pass

@@ -1,10 +1,13 @@
-from common.errors import InvalidDataError, AlreadyExistsError, UnauthorizedError, make_error_response
+from http import HTTPStatus
+
 from flask import request
 from flask_restful import Resource
-from http import HTTPStatus
 from marshmallow import ValidationError
-from models.users import login_schema, register_schema, login, register
 from werkzeug.exceptions import BadRequest
+
+from models.users import LOGIN_SCHEMA, REGISTER_SCHEMA, login, register
+from common.errors import InvalidDataError, AlreadyExistsError, \
+    UnauthorizedError, make_error_response
 
 
 class Login(Resource):
@@ -18,7 +21,8 @@ class Login(Resource):
         parameters:
           - in: body
             name: body
-            description: Either email or username must be filled. If both are present, username is used.
+            description: Either email or username must be filled. If both are present,
+                         username is used.
             schema:
               id: Credentials
               properties:
@@ -43,7 +47,7 @@ class Login(Resource):
                 token:
                   type: string
                   required: true
-                  example: eyJh.eyJzdWIiOiIxMjM0NTY3ODkaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZg
+                  example: eyJh.eyJzdWIiOiIxMjM0NTY3ODkaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZ
           400:
             description: Returned when request body is invalid, e.g. has no required fields,
                          redundant extra fields or is malformed.
@@ -70,13 +74,13 @@ class Login(Resource):
         """
         try:
             body = request.get_json()
-            user = login_schema.load(body)
+            user = LOGIN_SCHEMA.load(body)
             token = login(user)
             return {'token': token}, HTTPStatus.OK
         except (BadRequest, ValidationError, InvalidDataError):
             return make_error_response(HTTPStatus.BAD_REQUEST, 'Invalid request body')
-        except UnauthorizedError as e:
-            return make_error_response(HTTPStatus.UNAUTHORIZED, e.message)
+        except UnauthorizedError as ex:
+            return make_error_response(HTTPStatus.UNAUTHORIZED, ex.message)
 
 
 class Register(Resource):
@@ -90,8 +94,8 @@ class Register(Resource):
         parameters:
           - in: body
             name: body
-            description: Both username and e-mail are required. Account will not be created if there exist a user
-                         using the same username or email.
+            description: Both username and e-mail are required. Account will not be created
+                         if there exist a user using the same username or email.
             schema:
               $ref: '#/definitions/Credentials'
         responses:
@@ -121,11 +125,11 @@ class Register(Resource):
         """
         try:
             body = request.get_json()
-            user_pwd_hash, user_no_pwd_hash = register_schema.load(body), login_schema.load(body)
+            user_pwd_hash, user_no_pwd_hash = REGISTER_SCHEMA.load(body), LOGIN_SCHEMA.load(body)
             register(user_pwd_hash)
             token = login(user_no_pwd_hash)
             return {'token': token}, HTTPStatus.CREATED
         except (BadRequest, ValidationError, InvalidDataError):
             return make_error_response(HTTPStatus.BAD_REQUEST, 'Invalid request body')
-        except AlreadyExistsError as e:
-            return make_error_response(HTTPStatus.CONFLICT, e.message)
+        except AlreadyExistsError as ex:
+            return make_error_response(HTTPStatus.CONFLICT, ex.message)

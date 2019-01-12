@@ -1,11 +1,12 @@
 import unittest.mock as mock
+from unittest import TestCase
 
 from http import HTTPStatus
-from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
-from resources.auth import Login, Register
-from unittest import TestCase
 from marshmallow.exceptions import ValidationError
 from werkzeug.exceptions import BadRequest
+
+from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
+from resources.auth import Login, Register
 
 
 class LoginTest(TestCase):
@@ -13,7 +14,8 @@ class LoginTest(TestCase):
     @mock.patch('models.users.login_schema')
     @mock.patch('resources.auth.make_error_response')
     @mock.patch('resources.auth.request')
-    def test_calls_error_response_when_validation_fails(self, request_mock, make_error_mock, login_schema_mock):
+    def test_calls_error_response_when_validation_fails(self, request_mock,
+                                                        make_error_mock, login_schema_mock):
         request_mock.get_json.return_value = dict()
         login_schema_mock.load.raiseError.side_effect = ValidationError(message='test')
         uut = Login()
@@ -73,7 +75,8 @@ class RegisterTest(TestCase):
     @mock.patch('models.users.login_schema')
     @mock.patch('resources.auth.make_error_response')
     @mock.patch('resources.auth.request')
-    def test_calls_error_response_when_register_validation_fails(self, request_mock, make_error_mock, *_):
+    def test_calls_error_response_when_register_validation_fails(self, request_mock,
+                                                                 make_error_mock, *_):
         request_mock.get_json.return_value = dict()
         uut = Register()
 
@@ -85,7 +88,8 @@ class RegisterTest(TestCase):
     @mock.patch('models.users.login_schema', side_effect=ValidationError(message='test'))
     @mock.patch('resources.auth.make_error_response')
     @mock.patch('resources.auth.request')
-    def test_calls_error_response_when_login_validation_fails(self, request_mock, make_error_mock, *_):
+    def test_calls_error_response_when_login_validation_fails(self, request_mock,
+                                                              make_error_mock, *_):
         request_mock.get_json.return_value = dict()
         uut = Register()
 

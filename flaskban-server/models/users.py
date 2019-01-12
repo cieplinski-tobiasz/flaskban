@@ -5,14 +5,14 @@ from sqlalchemy import exists
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from common.errors import AlreadyExistsError, InvalidDataError, UnauthorizedError
-from extensions import db
+from extensions import DB
 
 
-class User(db.Model):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column(db.String(30), unique=True, nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    _password = db.Column(db.String(50), nullable=False)
+class User(DB.Model):
+    id_ = DB.Column('id', DB.Integer, primary_key=True)
+    name = DB.Column(DB.String(30), unique=True, nullable=False)
+    email = DB.Column(DB.String(50), unique=True, nullable=False)
+    _password = DB.Column(DB.String(50), nullable=False)
 
     @hybrid_property
     def password(self):
@@ -41,11 +41,11 @@ class User(db.Model):
         if not self.name or not self._password or not self.email:
             raise InvalidDataError('Required fields are not present')
 
-        if self._already_saved(db.session):
+        if self._already_saved(DB.session):
             raise AlreadyExistsError('User already exists')
 
-        db.session.add(self)
-        db.session.commit()
+        DB.session.add(self)
+        DB.session.commit()
 
     def __repr__(self):
         return f'User(id={self.id_}, name={self.name}, email={self.email})'
@@ -72,7 +72,7 @@ class UserLoginSchema(Schema):
     password = fields.Str(attribute='_password', load_only=True, required=True)
 
     @validates_schema
-    def validate(self, data):
+    def validate(self, data, many=None, partial=None):
         if 'name' not in data and 'email' not in data:
             raise ValidationError('Either username or email must be present')
 
@@ -81,8 +81,8 @@ class UserLoginSchema(Schema):
         return self.__model__(**data)
 
 
-register_schema = UserRegisterSchema()
-login_schema = UserLoginSchema()
+REGISTER_SCHEMA = UserRegisterSchema()
+LOGIN_SCHEMA = UserLoginSchema()
 
 
 def register(user):

@@ -6,8 +6,9 @@ class Boards(Resource):
         """
         List boards.
         ---
-        description: Returns a list of boards, that user has access to, i.e. public boards and private boards
-                     that allowed access to given user. Requires an authentication token in Authorization header.
+        description: Returns a list of boards, that user has access to,
+                     i.e. public boards and private boards that allowed access to given user.
+                     Requires an authentication token in Authorization header.
         tags:
           - board
         security:
@@ -48,14 +49,15 @@ class Boards(Resource):
                 message: 'Unauthorized - no valid token present.'
               }
         """
-        pass
 
     def post(self):
         """
         Create new board.
         ---
-        description: Creates a new, empty kanban board and makes the user who created it an administrator of the board.
-                     Private boards cannot be seen by people without access, while public boards may be seen by anybody.
+        description: Creates a new, empty kanban board and makes the user
+                     who created it an administrator of the board.
+                     Private boards cannot be seen by people without access,
+                     while public boards may be seen by anybody.
                      Requires an authentication token in Authorization header.
         tags:
           - board
@@ -76,7 +78,8 @@ class Boards(Resource):
                   enum: [public, private]
         responses:
           201:
-            description: Board created successfully. Returns the location of newly created board in header,
+            description: Board created successfully. Returns the location
+                         of newly created board in header,
                          and the object in response body.
             headers:
               Location:
@@ -114,7 +117,6 @@ class Boards(Resource):
                 message: 'Unauthorized - no valid token present.'
               }
         """
-        pass
 
 
 class Columns(Resource):
@@ -137,7 +139,8 @@ class Columns(Resource):
           - in: body
             name: body
             required: true
-            description: The name of the column is required, and it has to be unique within the board.
+            description: The name of the column is required,
+                         and it has to be unique within the board.
             schema:
               properties:
                 name:
@@ -146,7 +149,8 @@ class Columns(Resource):
                   example: To do
         responses:
           201:
-            description: Column successfully created. Returns the location of newly created column in header,
+            description: Column successfully created. Returns the location
+                         of newly created column in header,
                          and the object in response body.
             headers:
               Location:
@@ -206,7 +210,6 @@ class Columns(Resource):
                 message: 'Column creation failed - column with a given name already exists.'
               }
         """
-        pass
 
 
 class Tasks(Resource):
@@ -215,7 +218,8 @@ class Tasks(Resource):
         Create new task.
         ---
         description: Creates new task if the user has the permissions to do it.
-                     Task is associated with board and column, i.e. task can belong to *one* column only,
+                     Task is associated with board and column,
+                     i.e. task can belong to *one* column only,
                      and to *one* board only.
                      Requires an authentication token in Authorization header.
         tags:
@@ -231,8 +235,10 @@ class Tasks(Resource):
           - in: body
             name: body
             required: true
-            description: The name of the task is required. User with given ID must be permitted by the board
-                         to be able to be assigned to a given task. Task's name must be unique within the column.
+            description: The name of the task is required.
+                         User with given ID must be permitted by the board
+                         to be able to be assigned to a given task.
+                         Task's name must be unique within the column.
             schema:
               properties:
                 name:
@@ -246,16 +252,19 @@ class Tasks(Resource):
                   type: integer
                   example: 1
                   required: true
-                  description: ID of column that the task is assigned to. ID must be valid, i.e. a column with given id
+                  description: ID of column that the task is assigned to.
+                               ID must be valid, i.e. a column with given id
                                must exist within the board.
                 user_id:
                   type: integer
                   example: 4
-                  description: ID of the user responsible for the task. The board must assign permissions for the user
+                  description: ID of the user responsible for the task.
+                               The board must assign permissions for the user
                                with given ID that allow him to be assigned to the task.
         responses:
           201:
-            description: Task successfully created. Returns the location of newly created task in header,
+            description: Task successfully created. Returns the location of
+                         newly created task in header,
                          and the object in response body.
             headers:
               Location:
@@ -311,13 +320,14 @@ class Tasks(Resource):
                 message: 'Not found - board with id 1 does not exist.'
               }
           409:
-            description: Returned when task with given name already exists within the column.
+            description: Returned when task with given name
+                         already exists within the column.
             schema:
               $ref: '#/definitions/Error'
             examples:
               Task already exists: {
                 status: 409,
-                message: 'Task creation failed - task with a given name already exists within column with id 1.'
+                message: 'Task creation failed - task with a given name
+                          already exists within column with id 1.'
               }
         """
-        pass
