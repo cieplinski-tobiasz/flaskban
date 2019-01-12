@@ -197,10 +197,6 @@ class UserLoginSchema(Schema):
         return self.__model__(**data)
 
 
-REGISTER_SCHEMA = UserRegisterSchema()
-LOGIN_SCHEMA = UserLoginSchema()
-
-
 def register(user):
     """
     Calls user's `save()` method.
@@ -239,3 +235,7 @@ def login(user):
         raise UnauthorizedError('Wrong username or password')
 
     return create_access_token(identity=db_user.id_)
+
+
+REGISTER_SCHEMA = UserRegisterSchema()
+LOGIN_SCHEMA = UserLoginSchema()
