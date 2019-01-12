@@ -1,7 +1,37 @@
+from http import HTTPStatus
+
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flask_restful import Resource
+from flask import request
+
+from marshmallow import ValidationError
+from werkzeug.exceptions import BadRequest
+
+from models.boards import BOARD_SCHEMA
+
+from errors import handle_error, InvalidDataError
 
 
 class Boards(Resource):
+    """
+    Defines methods for /boards endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
+    method_decorators = [
+        handle_error(NoAuthorizationError,
+                     status=HTTPStatus.UNAUTHORIZED, message='No valid token present'),
+        handle_error(BadRequest, ValidationError, InvalidDataError,
+                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body'),
+        jwt_required
+    ]
+
     def get(self):
         """
         List boards.
@@ -107,6 +137,16 @@ class Boards(Resource):
                   type: list
                   required: true
                   example: []
+          400:
+            description: Returned when request body is invalid, e.g. has no required fields,
+                         redundant extra fields or is malformed.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid request: {
+                status: 400,
+                message: "Invalid request body"
+              }
           401:
             description: Returned when authentication token is missing or invalid.
             schema:
@@ -114,9 +154,14 @@ class Boards(Resource):
             examples:
               Invalid token: {
                 status: 401,
-                message: 'Unauthorized - no valid token present.'
+                message: 'No valid token present'
               }
         """
+        body = request.get_json()
+        board = BOARD_SCHEMA.load(body)
+        board.save()
+
+        return BOARD_SCHEMA.dump(board), HTTPStatus.CREATED, {'Location': f'/boards/{board.id_}'}
 
 
 class Columns(Resource):
