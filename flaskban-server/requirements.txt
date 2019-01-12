@@ -16,3 +16,4 @@ Flask-SQLAlchemy==2.3.1
 passlib==1.7
 marshmallow==3.0.0rc2
 flask-jwt-extended==3.15
+marshmallow-enum==2.0.0
