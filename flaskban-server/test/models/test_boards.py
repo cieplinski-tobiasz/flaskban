@@ -48,16 +48,16 @@ class BoardTest(TestCase):
         with self.assertRaises(InvalidDataError):
             uut.save()
 
-    def test_exists_by_id_calls_filter(self):
+    @mock.patch('models.boards.DB')
+    def test_exists_by_id_calls_filter(self, db_mock):
         """
-        Tests if exists_by_id method
-        delegates to query class object's method.
+        Tests if exists_by_id method delegates to database object.
         """
         Board.query = mock.Mock()
 
         Board.exists_by_id(2)
 
-        Board.query.filter.assert_called_once()
+        db_mock.session.query.assert_called_once()
 
     def test_find_by_name_calls_filter_by(self):
         """

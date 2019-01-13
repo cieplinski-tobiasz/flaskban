@@ -13,7 +13,7 @@ from marshmallow_enum import EnumField
 from sqlalchemy import exists
 from sqlalchemy.orm import relationship
 
-from models.columns import ColumnSchema
+import models.columns
 from errors import InvalidDataError, NotFoundError
 from extensions import DB
 
@@ -59,7 +59,7 @@ class Board(DB.Model):
         Returns:
             True if board exists, False otherwise.
         """
-        return cls.query.filter(exists().where(cls.id_ == id_)).scalar()
+        return DB.session.query(cls.query.filter(cls.id_ == id_).exists()).scalar()
 
     @classmethod
     def find_by_id(cls, id_):
@@ -141,7 +141,7 @@ class BoardSchema(Schema):
     id_ = fields.Integer(data_key='id', dump_only=True)
     name = fields.Str(required=True)
     visibility = EnumField(Visibility, required=True)
-    columns = fields.Nested(ColumnSchema, many=True, dump_only=True)
+    columns = fields.Nested(models.columns.ColumnSchema, many=True, dump_only=True)
 
     @post_load
     def make_board(self, data):
