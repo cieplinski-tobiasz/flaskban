@@ -16,30 +16,6 @@ class UserTest(TestCase):
     Test case for user model.
     """
 
-    def test_already_saved_calls_query(self):
-        """
-        Tests if _already_saved calles session's query method.
-        """
-        uut = User(name='john', password='pwd', email='john.smith@gmail.com')
-        session_mock = mock.Mock()
-
-        uut._already_saved(session_mock)
-        session_mock.query.assert_called()
-
-    def test_already_saved_returns_called_scalar(self):
-        """
-        Tests if _already_saved returns the result of the query.
-        """
-        uut = User(name='john', password='pwd', email='john.smith@gmail.com')
-        session_mock = mock.Mock()
-        scalar_mock = mock.Mock()
-        scalar_mock.scalar.return_value = True
-        session_mock.query.return_value = scalar_mock
-
-        result = uut._already_saved(session_mock)
-
-        self.assertTrue(result)
-
     def test_save_calls_db(self):
         """
         Tests if save method delegates to database object.

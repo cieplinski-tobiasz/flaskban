@@ -78,18 +78,14 @@ class User(DB.Model):
         """
         return cls.query.filter_by(email=email)
 
-    def _already_saved(self, session):
+    def _already_saved(self):
         """
-        Queries the database to check if user with given name or email
-        has already been stored.
-
-        Args:
-            session: Active session with database.
+        Queries the database to check if user with given name or email has been stored.
 
         Returns:
             True if user already exists, False otherwise.
         """
-        return session.query(
+        return User.query.filter(
             exists().where(
                 (User.name == self.name) | (User.email == self.email)
             )
@@ -106,7 +102,7 @@ class User(DB.Model):
         if not self.name or not self._password or not self.email:
             raise InvalidDataError('Required fields are not present')
 
-        if self._already_saved(DB.session):
+        if self._already_saved():
             raise AlreadyExistsError('User already exists')
 
         DB.session.add(self)
@@ -169,8 +165,7 @@ class UserLoginSchema(Schema):
     @validates_schema
     def validate(self, data, many=None, partial=None):
         """
-        Checks if either `name` or `email` is present
-        in the `data` dictionary.
+        Checks if either `name` or `email` is present in the `data` dictionary.
 
         Args:
             data (dict): Dictionary containing the input fields.
