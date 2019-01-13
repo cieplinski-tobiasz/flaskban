@@ -59,17 +59,6 @@ class BoardTest(TestCase):
 
         db_mock.session.query.assert_called_once()
 
-    def test_find_by_name_calls_filter_by(self):
-        """
-        Tests if find_by_name method
-        delegates to query class object.
-        """
-        Board.query = mock.Mock()
-
-        Board.find_by_name(name='test')
-
-        Board.query.filter_by.assert_called_once_with(name='test')
-
     @mock.patch.object(Board, 'exists_by_id', return_value=False)
     def test_delete_raises_when_no_board_with_id(self, _):
         """

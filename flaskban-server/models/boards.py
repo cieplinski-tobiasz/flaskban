@@ -82,19 +82,6 @@ class Board(DB.Model):
 
         return board
 
-    @classmethod
-    def find_by_name(cls, name):
-        """
-        Queries the database for a board with given name.
-
-        Args:
-            name (str): The name of the board.
-
-        Returns:
-            Board if board with given name exists, None otherwise.
-        """
-        return cls.query.filter_by(name=name).first()
-
     def save(self):
         """
         Stores the board in the database.
