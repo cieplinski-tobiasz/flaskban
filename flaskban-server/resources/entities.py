@@ -5,9 +5,9 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from marshmallow import EXCLUDE
 
-from errors import handle_error, JWT_ERROR_HANDLER, BAD_REQUEST_ERROR_HANDLER, NotFoundError
-from models.boards import BOARD_SCHEMA
-from models.boards import Board as BoardModel
+import domain.models
+import domain.schemas
+import errors
 
 
 class Board(Resource):
@@ -69,8 +69,8 @@ class Board(Resource):
                 message: 'Board with id 1 does not exist.'
               }
         """
-        board = BoardModel.find_by_id(board_id)
-        return BOARD_SCHEMA.dump(board), HTTPStatus.OK
+        board = domain.models.Board.find_by_id(board_id)
+        return domain.schemas.BOARD_SCHEMA.dump(board), HTTPStatus.OK
 
     def patch(self, board_id):
         """
@@ -137,8 +137,8 @@ class Board(Resource):
               }
         """
         body = request.get_json()
-        request_board = BOARD_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
-        db_board = BoardModel.find_by_id(board_id)
+        request_board = domain.schemas.BOARD_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
+        db_board = domain.models.Board.find_by_id(board_id)
 
         if request_board.name:
             db_board.name = request_board.name
@@ -147,7 +147,7 @@ class Board(Resource):
             db_board.visibility = request_board.visibility
 
         db_board.save()
-        return BOARD_SCHEMA.dump(db_board), HTTPStatus.OK
+        return domain.schemas.BOARD_SCHEMA.dump(db_board), HTTPStatus.OK
 
     def delete(self, board_id):
         """
@@ -197,7 +197,7 @@ class Board(Resource):
                 message: 'Board with id 1 does not exist'
               }
         """
-        BoardModel.delete(board_id)
+        domain.models.Board.delete(board_id)
         return {}, HTTPStatus.NO_CONTENT
 
 

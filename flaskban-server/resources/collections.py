@@ -4,8 +4,8 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 
-from errors import BAD_REQUEST_ERROR_HANDLER, JWT_ERROR_HANDLER
-from models.boards import BOARD_SCHEMA
+import domain.schemas
+import errors
 
 
 class Boards(Resource):
@@ -153,14 +153,19 @@ class Boards(Resource):
               }
         """
         body = request.get_json()
-        board = BOARD_SCHEMA.load(body)
+        board = domain.schemas.BOARD_SCHEMA.load(body)
         board.save()
 
-        return BOARD_SCHEMA.dump(board), HTTPStatus.CREATED, {'Location': f'/boards/{board.id_}'}
+        return domain.schemas.BOARD_SCHEMA.dump(board), HTTPStatus.CREATED,\
+               {'Location': f'/boards/{board.id_}'}
 
 
 class Columns(Resource):
-    def post(self):
+    method_decorators = [jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER]
+
+    @errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND)
+    @errors.handle_error(errors.AlreadyExistsError, status=HTTPStatus.CONFLICT)
+    def post(self, board_id):
         """
         Create new column.
         ---
@@ -213,6 +218,16 @@ class Columns(Resource):
                   type: list
                   required: true
                   example: []
+          400:
+            description: Returned when request body is invalid, e.g. has no required fields,
+                         redundant extra fields or is malformed.
+            schema:
+              $ref: '#/definitions/Error'
+            examples:
+              Invalid request: {
+                status: 400,
+                message: "Invalid request body"
+              }
           401:
             description: Returned when authentication token is missing or invalid.
             schema:
@@ -220,7 +235,7 @@ class Columns(Resource):
             examples:
               Invalid token: {
                 status: 401,
-                message: 'Unauthorized - no valid token present.'
+                message: 'No valid token present'
               }
           403:
             description: Returned when user has no permissions to create the column/
@@ -238,7 +253,7 @@ class Columns(Resource):
             examples:
               No board: {
                 status: 404,
-                message: 'Not found - board with id 1 does not exist.'
+                message: 'Board with id 1 does not exist'
               }
           409:
             description: Returned when column with given name already exists.
@@ -247,9 +262,15 @@ class Columns(Resource):
             examples:
               Column already exists: {
                 status: 409,
-                message: 'Column creation failed - column with a given name already exists.'
+                message: 'Column with name "To do" already exists in board with id 1'
               }
         """
+        body = request.get_json()
+        column = domain.schemas.COLUMN_SCHEMA.load(body)
+        column.save_to_board(board_id)
+
+        return domain.schemas.COLUMN_SCHEMA.dump(column), HTTPStatus.CREATED, \
+               {'Location': f'/boards/{board_id}/columns/{column.id_}'}
 
 
 class Tasks(Resource):

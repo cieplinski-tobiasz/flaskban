@@ -3,15 +3,15 @@ from http import HTTPStatus
 from flask import request
 from flask_restful import Resource
 
-from errors import AlreadyExistsError, \
-    UnauthorizedError, handle_error, BAD_REQUEST_ERROR_HANDLER
-from models.users import LOGIN_SCHEMA, REGISTER_SCHEMA, login, register
+from domain.models import User
+import domain.schemas
+import errors
 
 
 class Login(Resource):
-    method_decorators = [BAD_REQUEST_ERROR_HANDLER]
+    method_decorators = [errors.BAD_REQUEST_ERROR_HANDLER]
 
-    @handle_error(UnauthorizedError, status=HTTPStatus.UNAUTHORIZED)
+    @errors.handle_error(errors.UnauthorizedError, status=HTTPStatus.UNAUTHORIZED)
     def post(self):
         """
         Authenticate user.
@@ -74,15 +74,15 @@ class Login(Resource):
               failure: {status: 401, message: "Wrong username or password"}
         """
         body = request.get_json()
-        user = LOGIN_SCHEMA.load(body)
-        token = login(user)
+        user = domain.schemas.LOGIN_SCHEMA.load(body)
+        token = User.login(user)
         return {'token': token}, HTTPStatus.OK
 
 
 class Register(Resource):
-    method_decorators = [BAD_REQUEST_ERROR_HANDLER]
+    method_decorators = [errors.BAD_REQUEST_ERROR_HANDLER]
 
-    @handle_error(AlreadyExistsError, status=HTTPStatus.CONFLICT)
+    @errors.handle_error(errors.AlreadyExistsError, status=HTTPStatus.CONFLICT)
     def post(self):
         """
         Create new account.
@@ -123,7 +123,8 @@ class Register(Resource):
               }
         """
         body = request.get_json()
-        user_pwd_hash, user_no_pwd_hash = REGISTER_SCHEMA.load(body), LOGIN_SCHEMA.load(body)
-        register(user_pwd_hash)
-        token = login(user_no_pwd_hash)
+        user_pwd_hash = domain.schemas.REGISTER_SCHEMA.load(body)
+        user_no_pwd_hash = domain.schemas.LOGIN_SCHEMA.load(body)
+        User.register(user_pwd_hash)
+        token = User.login(user_no_pwd_hash)
         return {'token': token}, HTTPStatus.CREATED
