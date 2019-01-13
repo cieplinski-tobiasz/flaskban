@@ -1,11 +1,20 @@
 """
 The module defines hierarchy of errors used by application.
 It also contains utility methods for handling errors and creating error responses.
+
+Attributes:
+    JWT_ERROR_HANDLER: Decorator for handling common authentication token errors.
+    BAD_REQUEST_ERROR_HANDLER: Decorator for handling common malformed request errors.
 """
 
 from http import HTTPStatus
 
 from functools import wraps
+
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt import PyJWTError
+from marshmallow import ValidationError
+from werkzeug.exceptions import BadRequest
 
 
 def make_error_response(status, message):
@@ -96,3 +105,12 @@ class NotFoundError(ClientError):
     """
     Error raised when client tries to access a non-existing resource.
     """
+
+
+JWT_ERROR_HANDLER = handle_error(JWTExtendedException, PyJWTError,
+                                 status=HTTPStatus.UNAUTHORIZED,
+                                 message='No valid token present')
+
+BAD_REQUEST_ERROR_HANDLER = handle_error(BadRequest, ValidationError, InvalidDataError,
+                                         status=HTTPStatus.BAD_REQUEST,
+                                         message='Invalid request body')

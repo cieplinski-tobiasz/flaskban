@@ -1,16 +1,11 @@
 from http import HTTPStatus
 
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended.exceptions import JWTExtendedException
-from flask_restful import Resource
 from flask import request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource
 
-from marshmallow import ValidationError
-from werkzeug.exceptions import BadRequest
-
+from errors import BAD_REQUEST_ERROR_HANDLER, JWT_ERROR_HANDLER
 from models.boards import BOARD_SCHEMA
-
-from errors import handle_error, InvalidDataError
 
 
 class Boards(Resource):

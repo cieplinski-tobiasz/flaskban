@@ -2,19 +2,14 @@ from http import HTTPStatus
 
 from flask import request
 from flask_restful import Resource
-from marshmallow import ValidationError
-from werkzeug.exceptions import BadRequest
 
+from errors import AlreadyExistsError, \
+    UnauthorizedError, handle_error, BAD_REQUEST_ERROR_HANDLER
 from models.users import LOGIN_SCHEMA, REGISTER_SCHEMA, login, register
-from errors import InvalidDataError, AlreadyExistsError, \
-    UnauthorizedError, handle_error
 
 
 class Login(Resource):
-    method_decorators = [
-        handle_error(BadRequest, ValidationError, InvalidDataError,
-                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body')
-    ]
+    method_decorators = [BAD_REQUEST_ERROR_HANDLER]
 
     @handle_error(UnauthorizedError, status=HTTPStatus.UNAUTHORIZED)
     def post(self):
@@ -85,10 +80,7 @@ class Login(Resource):
 
 
 class Register(Resource):
-    method_decorators = [
-        handle_error(BadRequest, ValidationError, InvalidDataError,
-                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body')
-    ]
+    method_decorators = [BAD_REQUEST_ERROR_HANDLER]
 
     @handle_error(AlreadyExistsError, status=HTTPStatus.CONFLICT)
     def post(self):
