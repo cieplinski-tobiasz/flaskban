@@ -4,8 +4,10 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt import PyJWTError
 from flask_restful import Resource
-from marshmallow import ValidationError
+from marshmallow import ValidationError, EXCLUDE
 from werkzeug.exceptions import BadRequest
+from flask import request
+
 
 from errors import handle_error, InvalidDataError, NotFoundError
 from models.boards import Board as BoardModel
@@ -117,7 +119,7 @@ class Board(Resource):
             examples:
               Invalid token: {
                 status: 401,
-                message: 'Unauthorized - no valid token present.'
+                message: 'No valid token present.'
               }
           403:
             description: Returned when user has no permissions to modify the board.
@@ -135,9 +137,21 @@ class Board(Resource):
             examples:
               No board: {
                 status: 404,
-                message: 'Not found - board with id 1 does not exist.'
+                message: 'Board with id 1 does not exist.'
               }
         """
+        body = request.get_json()
+        request_board = BOARD_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
+        db_board = BoardModel.find_by_id(board_id)
+
+        if request_board.name:
+            db_board.name = request_board.name
+
+        if request_board.visibility:
+            db_board.visibility = request_board.visibility
+
+        db_board.save()
+        return BOARD_SCHEMA.dump(db_board), HTTPStatus.OK
 
     def delete(self, board_id):
         """
