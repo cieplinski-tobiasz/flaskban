@@ -1,7 +1,25 @@
+from http import HTTPStatus
+
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_restful import Resource
+from marshmallow import ValidationError
+from werkzeug.exceptions import BadRequest
+
+from errors import handle_error, InvalidDataError
+from models.boards import Board as BoardModel
 
 
 class Board(Resource):
+
+    method_decorators = [
+        jwt_required,
+        handle_error(JWTExtendedException,
+                     status=HTTPStatus.UNAUTHORIZED, message='No valid token present'),
+        handle_error(BadRequest, ValidationError, InvalidDataError,
+                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body'),
+    ]
+
     def get(self, board_id):
         """
         Retrieve the board.
@@ -144,7 +162,7 @@ class Board(Resource):
             examples:
               Invalid token: {
                 status: 401,
-                message: 'Unauthorized - no valid token present.'
+                message: 'No valid token present'
               }
           403:
             description: Returned when user has no permissions to delete the board.
@@ -153,7 +171,7 @@ class Board(Resource):
             examples:
               No permission: {
                 status: 403,
-                message: 'Forbidden - no permission to delete the board.'
+                message: 'Forbidden - no permission to delete the board'
               }
           404:
             description: Returned when no board with given id exists.
@@ -162,9 +180,11 @@ class Board(Resource):
             examples:
               No board: {
                 status: 404,
-                message: 'Not found - board with id 1 does not exist.'
+                message: 'Board with id 1 does not exist'
               }
         """
+        BoardModel.delete(board_id)
+        return {}, HTTPStatus.NO_CONTENT
 
 
 class Column(Resource):
