@@ -106,6 +106,29 @@ class BoardTest(TestCase):
         db_mock.session.delete.assert_called_once()
         db_mock.session.commit.assert_called_once()
 
+    def test_find_by_id_calls_get(self):
+        """
+        Tests if find_by_id method
+        delegates to query class object's method.
+        """
+        Board.query = mock.Mock()
+        id_ = 5
+
+        Board.find_by_id(id_)
+
+        Board.query.get.assert_called_once_with(5)
+
+    def test_find_by_id_raises_when_no_board_with_id(self):
+        """
+        Tests if find_by_id method
+        delegates to query class object's method.
+        """
+        Board.query = mock.Mock()
+        Board.query.get.return_value = None
+
+        with self.assertRaises(NotFoundError):
+            Board.find_by_id(5)
+
 
 class BoardSchemaTest(TestCase):
     """

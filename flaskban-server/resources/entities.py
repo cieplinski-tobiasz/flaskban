@@ -9,6 +9,7 @@ from werkzeug.exceptions import BadRequest
 
 from errors import handle_error, InvalidDataError, NotFoundError
 from models.boards import Board as BoardModel
+from models.boards import BOARD_SCHEMA
 
 
 class Board(Resource):
@@ -49,7 +50,7 @@ class Board(Resource):
             examples:
               Invalid token: {
                 status: 401,
-                message: 'Unauthorized - no valid token present.'
+                message: 'No valid token present.'
               }
           403:
             description: Returned when user has no permissions to see the board.
@@ -67,9 +68,11 @@ class Board(Resource):
             examples:
               No board: {
                 status: 404,
-                message: 'Not found - board with id 1 does not exist.'
+                message: 'Board with id 1 does not exist.'
               }
         """
+        board = BoardModel.find_by_id(board_id)
+        return BOARD_SCHEMA.dump(board), HTTPStatus.OK
 
     def patch(self, board_id):
         """

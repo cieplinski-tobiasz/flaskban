@@ -59,6 +59,27 @@ class Board(DB.Model):
         return cls.query.filter(exists().where(cls.id_ == id_)).scalar()
 
     @classmethod
+    def find_by_id(cls, id_):
+        """
+        Queries the database for a board with given id.
+
+        Args:
+            id_ (int): ID of the board.
+
+        Returns:
+            Board with given ID.
+
+        Raises:
+            NotFoundError: If board with given ID does not exist.
+        """
+        board = cls.query.get(id_)
+
+        if not board:
+            raise NotFoundError(f'Board with id {id_} does not exist')
+
+        return board
+
+    @classmethod
     def find_by_name(cls, name):
         """
         Queries the database for a board with given name.
