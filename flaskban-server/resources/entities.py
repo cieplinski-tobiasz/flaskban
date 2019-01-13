@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt import PyJWTError
 from flask_restful import Resource
 from marshmallow import ValidationError
 from werkzeug.exceptions import BadRequest
