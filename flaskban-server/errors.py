@@ -90,3 +90,9 @@ class UnauthorizedError(ClientError):
     """
     Error raised when authentication token is not valid.
     """
+
+
+class NotFoundError(ClientError):
+    """
+    Error raised when client tries to access a non-existing resource.
+    """
