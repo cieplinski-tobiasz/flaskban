@@ -43,7 +43,7 @@ def handle_error(*errors, status=HTTPStatus.INTERNAL_SERVER_ERROR, message=None)
     instead of raising the error.
 
     Args:
-        *errors (Exception): list of Exception classes to be handled.
+        *errors (type): list of Exception classes to be handled.
         status (int): HTTP status used in the error message.
         message (str): Message used in the error message.
 
