@@ -7,7 +7,7 @@ from flask_restful import Resource
 from marshmallow import ValidationError
 from werkzeug.exceptions import BadRequest
 
-from errors import handle_error, InvalidDataError
+from errors import handle_error, InvalidDataError, NotFoundError
 from models.boards import Board as BoardModel
 
 
