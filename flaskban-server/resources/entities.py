@@ -1,17 +1,13 @@
 from http import HTTPStatus
 
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended.exceptions import JWTExtendedException
-from jwt import PyJWTError
-from flask_restful import Resource
-from marshmallow import ValidationError, EXCLUDE
-from werkzeug.exceptions import BadRequest
 from flask import request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource
+from marshmallow import EXCLUDE
 
-
-from errors import handle_error, InvalidDataError, NotFoundError
-from models.boards import Board as BoardModel
+from errors import handle_error, JWT_ERROR_HANDLER, BAD_REQUEST_ERROR_HANDLER, NotFoundError
 from models.boards import BOARD_SCHEMA
+from models.boards import Board as BoardModel
 
 
 class Board(Resource):
