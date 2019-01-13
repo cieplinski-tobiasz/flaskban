@@ -1,6 +1,6 @@
 """
-The module contains the Board model, validation schema,
-Visibility enum.
+The module contains the Board model, validation schema
+and Visibility enum.
 
 Attributes:
     BOARD_SCHEMA: Schema used for validating the input and serialization.
@@ -11,7 +11,9 @@ from marshmallow import Schema, fields, post_load
 from marshmallow_enum import EnumField
 
 from sqlalchemy import exists
+from sqlalchemy.orm import relationship
 
+from models.columns import ColumnSchema
 from errors import InvalidDataError, NotFoundError
 from extensions import DB
 
@@ -43,6 +45,7 @@ class Board(DB.Model):
     id_ = DB.Column('id', DB.Integer, primary_key=True)
     name = DB.Column(DB.String(), nullable=False)
     visibility = DB.Column(DB.Enum(Visibility), nullable=False)
+    columns = relationship('Column', back_populates='board')
 
     @classmethod
     def exists_by_id(cls, id_):
@@ -138,6 +141,7 @@ class BoardSchema(Schema):
     id_ = fields.Integer(data_key='id', dump_only=True)
     name = fields.Str(required=True)
     visibility = EnumField(Visibility, required=True)
+    columns = fields.Nested(ColumnSchema, many=True, dump_only=True)
 
     @post_load
     def make_board(self, data):
