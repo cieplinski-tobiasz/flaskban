@@ -12,7 +12,7 @@ from marshmallow_enum import EnumField
 
 from sqlalchemy import exists
 
-from errors import InvalidDataError
+from errors import InvalidDataError, NotFoundError
 from extensions import DB
 
 
@@ -56,7 +56,7 @@ class Board(DB.Model):
         Returns:
             True if board exists, False otherwise.
         """
-        return cls.query.filter_by(exists().where(cls.id_ == id_)).scalar()
+        return cls.query.filter(exists().where(cls.id_ == id_)).scalar()
 
     @classmethod
     def find_by_name(cls, name):
@@ -82,6 +82,26 @@ class Board(DB.Model):
             raise InvalidDataError('Required fields are not present')
 
         DB.session.add(self)
+        DB.session.commit()
+
+    @classmethod
+    def delete(cls, id_):
+        """
+        Deletes the board with given id from the database.
+
+        All the columns and tasks associated with the board are also deleted.
+
+        Args:
+            id_ (int): ID of the board.
+
+        Raises:
+            NotFoundError: If board with given id does not exist.
+        """
+        if not cls.exists_by_id(id_):
+            raise NotFoundError(f'Board with id {id_} does not exist')
+
+        board = cls.query.filter_by(id_=id_).one()
+        DB.session.delete(board)
         DB.session.commit()
 
     def __repr__(self):

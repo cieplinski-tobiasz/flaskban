@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from marshmallow import ValidationError
 
-from errors import InvalidDataError
+from errors import InvalidDataError, NotFoundError
 from models.boards import Board, BoardSchema
 
 
@@ -16,16 +16,17 @@ class BoardTest(TestCase):
     Test case for board model.
     """
 
-    def test_save_calls_db(self):
+    @mock.patch('models.boards.DB')
+    def test_save_calls_db(self, db_mock):
         """
         Tests if save method delegates to database object.
         """
         uut = Board(name='test board', visibility='private')
 
-        with mock.patch('models.boards.DB') as mocked_db:
-            uut.save()
-            mocked_db.session.add.assert_called_with(uut)
-            mocked_db.session.commit.assert_called()
+        uut.save()
+
+        db_mock.session.add.assert_called_with(uut)
+        db_mock.session.commit.assert_called()
 
     def test_save_raises_name_not_present(self):
         """
@@ -47,6 +48,17 @@ class BoardTest(TestCase):
         with self.assertRaises(InvalidDataError):
             uut.save()
 
+    def test_exists_by_id_calls_filter(self):
+        """
+        Tests if exists_by_id method
+        delegates to query class object's method.
+        """
+        Board.query = mock.Mock()
+
+        Board.exists_by_id(2)
+
+        Board.query.filter.assert_called_once()
+
     def test_find_by_name_calls_filter_by(self):
         """
         Tests if find_by_name method
@@ -58,17 +70,41 @@ class BoardTest(TestCase):
 
         Board.query.filter_by.assert_called_once_with(name='test')
 
-    def test_exists_by_id_calls_filter_by(self):
+    @mock.patch.object(Board, 'exists_by_id', return_value=False)
+    def test_delete_raises_when_no_board_with_id(self, _):
         """
-        Tests if exists_by_id method
-        delegates to query class object.
+        Tests if delete method raises NotFoundError
+        when exists_by_id returns false.
         """
+        with self.assertRaises(NotFoundError):
+            Board.delete(5)
 
+    @mock.patch.object(Board, 'exists_by_id', return_value=True)
+    @mock.patch('models.boards.DB')
+    def test_delete_calls_filter_by_with_id(self, *_):
+        """
+        Tests if delete method
+        to query class object's method.
+        """
         Board.query = mock.Mock()
 
-        Board.exists_by_id(id_=2)
+        Board.delete(5)
 
-        Board.query.filter_by.assert_called_once()
+        Board.query.filter_by.assert_called_once_with(id_=5)
+
+    @mock.patch.object(Board, 'exists_by_id', return_value=True)
+    @mock.patch('models.boards.DB')
+    def test_delete_calls_db(self, db_mock, _):
+        """
+        Tests if delete method
+        to query class object's method.
+        """
+        Board.query = mock.Mock()
+
+        Board.delete(5)
+
+        db_mock.session.delete.assert_called_once()
+        db_mock.session.commit.assert_called_once()
 
 
 class BoardSchemaTest(TestCase):
