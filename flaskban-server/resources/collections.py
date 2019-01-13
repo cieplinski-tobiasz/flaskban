@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended.exceptions import NoAuthorizationError
+from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_restful import Resource
 from flask import request
 
@@ -25,7 +25,7 @@ class Boards(Resource):
     """
 
     method_decorators = [
-        handle_error(NoAuthorizationError,
+        handle_error(JWTExtendedException,
                      status=HTTPStatus.UNAUTHORIZED, message='No valid token present'),
         handle_error(BadRequest, ValidationError, InvalidDataError,
                      status=HTTPStatus.BAD_REQUEST, message='Invalid request body'),
