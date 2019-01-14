@@ -507,3 +507,71 @@ class ColumnTest(TestCase):
 
         db_mock.session.add.assert_called_once_with(uut)
         db_mock.session.commit.assert_called_once()
+
+
+class TaskTest(TestCase):
+    """
+    Test case for task model.
+    """
+
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
+    def test_exists_in_column_by_name_raises_when_no_board(self, _):
+        """
+        Tests if exists_in_column_by_name raises NotFoundError
+        when board with given id does not exist.
+        """
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.exists_in_column_by_name(board_id=1, column_id=2, name='test')
+
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=False)
+    def test_exists_in_column_by_name_raises_when_no_column(self, *_):
+        """
+        Tests if exists_in_column_by_name raises NotFoundError
+        when column with given id does not exist
+        within the board.
+        """
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.exists_in_column_by_name(board_id=1, column_id=2, name='test')
+
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_exists_in_column_by_name_calls_db(self, db_mock, *_):
+        """
+        Tests if exists_in_column_by_name
+        delegates to database object.
+        """
+        domain.models.Task.query = mock.Mock()
+        uut = domain.models.Task()
+
+        uut.exists_in_column_by_name(board_id=1, column_id=2, name='test')
+
+        db_mock.session.query.assert_called_once()
+
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_save_to_board_raises_when_exists_in_column(self, *_):
+        """
+        Tests if save_to_board raises NotFoundError
+        when task with given name already exists
+        within the column.
+        """
+        uut = domain.models.Task()
+
+        with self.assertRaises(errors.AlreadyExistsError):
+            uut.save_to_board(4)
+
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_save_to_board_calls_db(self, db_mock, _):
+        """
+        Tests if save_to_board
+        delegates to database object.
+        """
+        uut = domain.models.Task()
+
+        uut.save_to_board(4)
+
+        db_mock.session.add.assert_called_once_with(uut)
+        db_mock.session.commit.assert_called_once()

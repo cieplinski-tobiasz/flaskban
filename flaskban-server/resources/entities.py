@@ -43,7 +43,7 @@ class Board(Resource):
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schema/Board'
+                  $ref: '#/components/schemas/Board'
           '401':
             $ref: '#/components/responses/NoToken'
           '403':
@@ -51,7 +51,7 @@ class Board(Resource):
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schema/Error'
+                  $ref: '#/components/schemas/Error'
             examples:
               No permission:
                 status: 403
@@ -61,7 +61,7 @@ class Board(Resource):
             content:
               application/json:
                 schema:
-                  $ref: '#/definitions/Error'
+                  $ref: '#/components/schemas/Error'
             examples:
               No board:
                 status: 404
@@ -367,7 +367,7 @@ class Column(Resource):
             content:
               application/json:
                 schema:
-                  $ref: '#/definitions/Error'
+                  $ref: '#/components/schemas/Error'
             examples:
               No board:
                 status: 404

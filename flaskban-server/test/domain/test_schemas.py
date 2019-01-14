@@ -231,3 +231,22 @@ class ColumnSchemaTest(TestCase):
         uut.make_column(data)
 
         model_mock.assert_called_once_with(**data)
+
+
+class TaskSchemaTest(TestCase):
+    """
+    Test case for column schema. Covers validation of data.
+    """
+
+    @mock.patch.object(domain.schemas.TaskSchema, '__model__')
+    def test_make_task_delegates_to_init(self, model_mock):
+        """
+        Tests if make_task method delegates to
+        model's __init__ method with given arguments.
+        """
+        data = {'test': 'data'}
+
+        uut = domain.schemas.TaskSchema()
+        uut.make_task(data)
+
+        model_mock.assert_called_once_with(**data)

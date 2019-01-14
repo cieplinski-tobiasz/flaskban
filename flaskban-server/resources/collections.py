@@ -120,6 +120,16 @@ class Boards(Resource):
 
 
 class Columns(Resource):
+    """
+    Defines methods for /boards/{board_id}/columns endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
     method_decorators = [jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER]
 
     @errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND)
@@ -213,7 +223,21 @@ class Columns(Resource):
 
 
 class Tasks(Resource):
-    def post(self):
+    """
+    Defines methods for /boards/{board_id}/tasks endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
+    method_decorators = [jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER]
+
+    @errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND)
+    @errors.handle_error(errors.AlreadyExistsError, status=HTTPStatus.CONFLICT)
+    def post(self, board_id):
         """
         Create new task.
         ---
@@ -275,8 +299,10 @@ class Tasks(Resource):
                   format: uri
                 example: /boards/1/tasks/1
                 description: Location of newly created task.
-            schema:
-              $ref: '#/components/schemas/Task'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Task'
           '401':
             $ref: '#/components/responses/NoToken'
           '403':
@@ -284,7 +310,7 @@ class Tasks(Resource):
             content:
               application/json:
                 schema:
-                  $ref: '#/definitions/Error'
+                  $ref: '#/components/schemas/Error'
             examples:
               No permission:
                 status: 403
@@ -298,7 +324,7 @@ class Tasks(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
           '409':
             description: Returned when task with given name
                          already exists within the column.
@@ -309,6 +335,10 @@ class Tasks(Resource):
             examples:
               Task already exists:
                 status: 409
-                message: Task creation failed - task with a given name
-                         already exists within column with id 1.
+                message: Task with name "Do the shopping" already exists in column with id 1
         """
+        body = request.get_json()
+        task = domain.schemas.TASK_SCHEMA.load(body)
+        task.save_to_board(board_id)
+        return domain.schemas.TASK_SCHEMA.dump(task), HTTPStatus.CREATED,\
+               {'Location': f'/boards/{board_id}/tasks/{task.id_}'}

@@ -175,7 +175,7 @@ class Board(DB.Model):
     id_ = DB.Column('id', DB.Integer, primary_key=True)
     name = DB.Column(DB.String(), nullable=False)
     visibility = DB.Column(DB.Enum(Visibility), nullable=False)
-    columns = relationship('Column', back_populates='board')
+    columns = relationship('Column', cascade='delete', back_populates='board')
 
     @classmethod
     def exists_by_id(cls, id_):
@@ -281,8 +281,9 @@ class Column(DB.Model):
     """
     id_ = DB.Column('id', DB.Integer, primary_key=True)
     name = DB.Column(DB.String(), nullable=False)
-    board_id = DB.Column(DB.Integer, DB.ForeignKey('board.id'))
-    board = relationship('Board', cascade='all,delete', back_populates='columns')
+    board_id = DB.Column(DB.Integer, DB.ForeignKey('board.id'), nullable=False)
+    board = relationship('Board', back_populates='columns')
+    tasks = relationship('Task', cascade='delete')
 
     __table_args__ = (
         DB.UniqueConstraint('board_id', 'name', name='_name_board_id_uc'),
@@ -407,5 +408,77 @@ class Column(DB.Model):
             )
 
         self.board_id = board_id
+        DB.session.add(self)
+        DB.session.commit()
+
+
+class Task(DB.Model):
+    """
+    Defines the ORM model for task.
+    Task *always* belongs to exactly *one* column in the board.
+    It may have user assigned, but it does not have to.
+
+    Attributes:
+        id_ (int): ID of the task.
+        name (str): Name of the task.
+        board_id (int): ID of the board that the task is in.
+        column_id (int): ID of the column the task is assigned to.
+        user_id (int): ID of the user assigned to the task.
+    """
+    id_ = DB.Column('id', DB.Integer, primary_key=True)
+    name = DB.Column(DB.String(), nullable=False)
+    description = DB.Column(DB.String())
+    board_id = DB.Column(DB.Integer, DB.ForeignKey('board.id'), nullable=False)
+    column_id = DB.Column(DB.Integer, DB.ForeignKey('column.id'), nullable=False)
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=True)
+
+    __table_args__ = (DB.UniqueConstraint('column_id', 'name', name='_name_col_id_uc'), )
+
+    @classmethod
+    def exists_in_column_by_name(cls, *, board_id, column_id, name):
+        """
+        Checks if task with given name exists in a column with given id.
+
+        Args:
+            board_id (int): ID of the board.
+            column_id (int): ID of the column.
+            name (str): Name of the task.
+
+        Returns:
+            True if task exists, false otherwise.
+
+        Raises:
+            NotFoundError: If board or column does not exist.
+        """
+        if not Board.exists_by_id(board_id):
+            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
+
+        if not Column.exists_in_board_by_id(board_id, column_id):
+            raise errors.NotFoundError(
+                f'Column with id {column_id} does not exist in board with id {board_id}"')
+
+        return DB.session.query(
+            Task.query.filter(
+                (Task.board_id == board_id) & (Task.column_id == column_id) & (Task.name == name)
+            ).exists()).scalar()
+
+    def save_to_board(self, board_id):
+        """
+        Stores the task in the database,
+        associating it with given board id.
+
+        Raises:
+            NotFoundError: If board or column with given ID does not exist.
+            AlreadyExistsError: If task with given name already exists
+                                in a column with given ID.
+        """
+
+        self.board_id = board_id
+
+        if Task.exists_in_column_by_name(board_id=board_id,
+                                         column_id=self.column_id, name=self.name):
+            raise errors.AlreadyExistsError(
+                f'Task with name "{self.name}" already exists in column with id {self.column_id}')
+
         DB.session.add(self)
         DB.session.commit()

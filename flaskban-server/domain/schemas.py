@@ -90,6 +90,32 @@ class UserLoginSchema(Schema):
         return self.__model__(**data)
 
 
+class TaskSchema(Schema):
+    """
+    Defines a validation and serialization schema for task.
+    """
+    __model__ = domain.models.Task
+
+    id_ = fields.Integer(data_key='id', dump_only=True)
+    name = fields.Str(required=True)
+    description = fields.Str()
+    column_id = fields.Integer(required=True)
+    user_id = fields.Integer()
+
+    @post_load
+    def make_task(self, data):
+        """
+        Creates task object from dictionary.
+
+        Args:
+            data (dict): Dictionary containing the input fields.
+
+        Returns:
+            Task object with filled fields according to `data`.
+        """
+        return self.__model__(**data)
+
+
 class ColumnSchema(Schema):
     """
     Defines a validation and serialization schema for column.
@@ -98,6 +124,7 @@ class ColumnSchema(Schema):
 
     id_ = fields.Integer(data_key='id', dump_only=True)
     name = fields.Str(required=True)
+    tasks = fields.Nested(TaskSchema, many=True, dump_only=True)
 
     @post_load
     def make_column(self, data):
@@ -140,5 +167,6 @@ class BoardSchema(Schema):
 
 BOARD_SCHEMA = BoardSchema()
 COLUMN_SCHEMA = ColumnSchema()
+TASK_SCHEMA = TaskSchema()
 LOGIN_SCHEMA = UserLoginSchema()
 REGISTER_SCHEMA = UserRegisterSchema()
