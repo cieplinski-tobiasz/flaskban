@@ -48,7 +48,8 @@ class Boards(Resource):
             name: limit
             schema:
               type: integer
-            description: Maximum number of results returned (acceptable values are 1 to 1000). Defaults to 20.
+            description: Maximum number of results returned (acceptable values are 1 to 1000).
+                         Defaults to 20.
         responses:
           '200':
             description: List of boards. The board are presented in simplified name -
