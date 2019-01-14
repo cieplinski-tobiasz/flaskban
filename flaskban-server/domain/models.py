@@ -212,19 +212,6 @@ class Board(DB.Model):
 
         return board
 
-    def save(self):
-        """
-        Stores the board in the database.
-
-        Raises:
-            InvalidDataError: If any of the fields in model is not present.
-        """
-        if not self.name or not self.visibility:
-            raise errors.InvalidDataError('Required fields are not present')
-
-        DB.session.add(self)
-        DB.session.commit()
-
     @classmethod
     def delete(cls, id_):
         """
@@ -243,6 +230,35 @@ class Board(DB.Model):
 
         board = cls.query.filter_by(id_=id_).one()
         DB.session.delete(board)
+        DB.session.commit()
+
+    def merge(self, other):
+        """
+        Updates `self` object with fields from another Board.
+        The only fields that are updated are `name` and `visibility`.
+        Update occurs *only* if those fields are present in the `other` object,
+        i. e. they are not equal to None.
+
+        Args:
+            other (Board): Object that will be used for update of self.
+        """
+        if other.name:
+            self.name = other.name
+
+        if other.visibility:
+            self.visibility = other.visibility
+
+    def save(self):
+        """
+        Stores the board in the database.
+
+        Raises:
+            InvalidDataError: If any of the fields in model is not present.
+        """
+        if not self.name or not self.visibility:
+            raise errors.InvalidDataError('Required fields are not present')
+
+        DB.session.add(self)
         DB.session.commit()
 
     def __repr__(self):

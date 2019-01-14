@@ -13,6 +13,43 @@ class BoardTest(TestCase):
     Test case for board model.
     """
 
+    def test_merge_copies_name_and_visibility(self):
+        """
+        Tests if merge method assigns `name` and `visibility`
+        when the fields are present in the `other` object.
+        """
+        uut = domain.models.Board(name='pre-update', visibility='private')
+        other = domain.models.Board(name='post-update', visibility='public')
+
+        uut.merge(other)
+
+        self.assertEqual(uut.name, 'post-update')
+        self.assertEqual(uut.visibility, 'public')
+
+    def test_merge_does_not_copy_id(self):
+        """
+        Tests if merge methods *does not* copy id of the `other` object.
+        """
+        uut = domain.models.Board(id_=0)
+        other = domain.models.Board(id_=1)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.id_, 0)
+
+    def test_merge_does_not_copy_nones(self):
+        """
+        Tests if merge method *does not* assign `name` and `visibility`
+        when the fields are *not* present in the `other` object.
+        """
+        uut = domain.models.Board(name='pre-update', visibility='private')
+        other = domain.models.Board(name=None, visibility=None)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.name, 'pre-update')
+        self.assertEqual(uut.visibility, 'private')
+
     @mock.patch('domain.models.DB')
     def test_save_calls_db(self, db_mock):
         """

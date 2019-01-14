@@ -136,13 +136,7 @@ class Board(Resource):
         body = request.get_json()
         request_board = domain.schemas.BOARD_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
         db_board = domain.models.Board.find_by_id(board_id)
-
-        if request_board.name:
-            db_board.name = request_board.name
-
-        if request_board.visibility:
-            db_board.visibility = request_board.visibility
-
+        db_board.merge(request_board)
         db_board.save()
         return domain.schemas.BOARD_SCHEMA.dump(db_board), HTTPStatus.OK
 
