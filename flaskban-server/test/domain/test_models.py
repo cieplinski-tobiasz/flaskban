@@ -294,6 +294,29 @@ class ColumnTest(TestCase):
     Test case for column model.
     """
 
+    @mock.patch('domain.models.DB')
+    @mock.patch.object(domain.models.Column, 'find_by_ids')
+    def test_delete_delegates_to_find_by_ids(self, find_by_ids_mock, _):
+        """
+        Tests if delete delegates to
+        find_by_ids class method.
+        """
+        domain.models.Column.delete(board_id=1, column_id=2)
+
+        find_by_ids_mock.assert_called_once_with(board_id=1, column_id=2)
+
+    @mock.patch.object(domain.models.Column, 'find_by_ids')
+    @mock.patch('domain.models.DB')
+    def test_delete_delegates_to_db(self, db_mock, _):
+        """
+        Tests if delete delegates to
+        database object.
+        """
+        domain.models.Column.delete(board_id=1, column_id=2)
+
+        db_mock.session.delete.assert_called_once()
+        db_mock.session.commit.assert_called_once()
+
     @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
     def test_find_by_ids_raises_when_no_board(self, _):
         """

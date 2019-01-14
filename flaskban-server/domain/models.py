@@ -352,3 +352,23 @@ class Column(DB.Model):
                 f'Column with id {column_id} does not exist in board with id {board_id}')
 
         return cls.query.filter((cls.board_id == board_id) & (cls.id_ == column_id)).one()
+
+    @classmethod
+    def delete(cls, *, board_id, column_id):
+        """
+        Deletes the column with given id belonging to board with given id from the database.
+
+        All the tasks associated with the column are also deleted.
+
+        Args:
+            board_id (int): ID of the board.
+            column_id (int): ID of the column.
+
+        Raises:
+            NotFoundError: If board with given id does not exist,
+                           or column with given id does not exist
+                           within the board.
+        """
+        column = cls.find_by_ids(board_id=board_id, column_id=column_id)
+        DB.session.delete(column)
+        DB.session.commit()

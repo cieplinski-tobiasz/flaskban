@@ -260,7 +260,7 @@ class Column(Resource):
         column = domain.models.Column.find_by_ids(board_id=board_id, column_id=column_id)
         return domain.schemas.COLUMN_SCHEMA.dump(column), HTTPStatus.OK
 
-    def delete(self):
+    def delete(self, board_id, column_id):
         """
         Delete the column.
         ---
@@ -313,6 +313,8 @@ class Column(Resource):
                 status: 404
                 message: Column with id 1 does not exist
         """
+        domain.models.Column.delete(board_id=board_id, column_id=column_id)
+        return {}, HTTPStatus.NO_CONTENT
 
     def patch(self):
         """
