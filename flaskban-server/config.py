@@ -1,3 +1,11 @@
+"""
+The module contains objects and dictionares
+used for configuring the application.
+
+Attributes:
+    TEMPLATE_FILENAME (str): Name of the file passed to Swagger __init__ method.
+"""
+
 class Config:
     SWAGGER = {
         'title': 'FlaskBan',
@@ -16,3 +24,5 @@ def get_config(name):
         return DevelopmentConfig()
 
     raise ValueError(f'No config named {name}')
+
+TEMPLATE_FILENAME = 'swagger_docs.yml'

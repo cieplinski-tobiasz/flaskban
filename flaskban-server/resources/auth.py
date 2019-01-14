@@ -19,59 +19,33 @@ class Login(Resource):
         description: Supplies registered user with the authentication token.
         tags:
           - auth
-        parameters:
-          - in: body
-            name: body
-            description: Either email or username must be filled. If both are present,
-                         username is used.
-            schema:
-              id: Credentials
-              properties:
-                username:
-                  type: string
-                  example: john_smith
-                email:
-                  type: string
-                  format: email
-                  example: john_smith@gmail.com
-                password:
-                  type: string
-                  format: password
-                  example: qwerty
-                  required: true
+        requestBody:
+          required: true
+          description: Either email or username must be filled. If both are present,
+                       username is used.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credentials'
         responses:
-          200:
+          '200':
             description: Successful authentication resulting in the authentication token.
-            schema:
-              id: Token
-              properties:
-                token:
-                  type: string
-                  required: true
-                  example: eyJh.eyJzdWIiOiIxMjM0NTY3ODkaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZ
-          400:
-            description: Returned when request body is invalid, e.g. has no required fields,
-                         redundant extra fields or is malformed.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Already exists: {
-                status: 400,
-                message: "Invalid request body"
-              }
-          401:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token'
+          '400':
+                  $ref: '#/components/responses/InvalidRequest'
+          '401':
             description: Failed authentication.
-            schema:
-              id: Error
-              properties:
-                status:
-                  type: integer
-                  required: true
-                message:
-                  type: string
-                  required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              failure: {status: 401, message: "Wrong username or password"}
+              Failed authentication:
+                status: 401
+                message: Wrong username or password
         """
         body = request.get_json()
         user = domain.schemas.LOGIN_SCHEMA.load(body)
@@ -90,37 +64,33 @@ class Register(Resource):
         description: Creates an account and returns the authentication token.
         tags:
           - auth
-        parameters:
-          - in: body
-            name: body
-            description: Both username and e-mail are required. Account will not be created
-                         if there exist a user using the same username or email.
-            schema:
-              $ref: '#/definitions/Credentials'
+        requestBody:
+          required: true
+          description: Both username and e-mail are required. Account will not be created
+                       if there exist a user using the same username or email.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credentials'
         responses:
-          201:
+          '201':
             description: Account successfully created. Response contains the authentication token.
-            schema:
-              $ref: '#/definitions/Token'
-          400:
-            description: Returned when request body is invalid, e.g. has no required fields,
-                         redundant extra fields or is malformed.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Already exists: {
-                status: 400,
-                message: "Invalid request body"
-              }
-          409:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token'
+          '400':
+                  $ref: '#/components/responses/InvalidRequest'
+          '409':
             description: Returned when user with given email or username already exists.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              Already exists: {
-                status: 409,
-                message: "User already exists"
-              }
+              Already exists:
+                status: 409
+                message: User already exists
         """
         body = request.get_json()
         user_pwd_hash = domain.schemas.REGISTER_SCHEMA.load(body)

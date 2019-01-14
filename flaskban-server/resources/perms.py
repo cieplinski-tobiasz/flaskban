@@ -15,26 +15,16 @@ class Permissions(Resource):
         tags:
           - permission
         security:
-          -
+          - authBearer: []
         responses:
-          200:
+          '200':
             description: List of permissions.
-            example: {
-              permissions: [
-                {id: 1, name: "COLUMN_CREATE", description: "Allows for creating columns."},
-                {id: 2, name: "COLUMN_DELETE", description: "Allows for deleting columns."},
-                {id: 3, name: "TASK_CREATE", description: "Allows for creating tasks."}
-              ]
-            }
-          401:
-            description: Returned when authentication token is missing or invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Invalid token: {
-                status: 401,
-                message: 'Unauthorized - no valid token present.'
-              }
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PermissionList'
+          '401':
+            $ref: '#/components/responses/NoToken'
         """
 
 
@@ -49,59 +39,52 @@ class UserPermissions(Resource):
         tags:
           - permission
         security:
-          -
+          - authBearer: []
         parameters:
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: board_id
             required: true
             description: ID of the board.
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: user_id
             required: true
             description: ID of the user.
         responses:
-          200:
+          '200':
             description: List of permissions.
-            example: {
-              permissions: [
-                {id: 1, name: "COLUMN_CREATE", description: "Allows for creating columns."},
-                {id: 2, name: "COLUMN_DELETE", description: "Allows for deleting columns."},
-                {id: 3, name: "TASK_CREATE", description: "Allows for creating tasks."}
-              ]
-            }
-          401:
-            description: Returned when authentication token is missing or invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Invalid token: {
-                status: 401,
-                message: 'Unauthorized - no valid token present.'
-              }
-          403:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PermissionList'
+          '401':
+            $ref: '#/components/responses/NoToken'
+          '403':
             description: Returned when user has no permissions to list the permissions.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/definitions/Error'
             examples:
-              No permission: {
-                status: 403,
-                message: 'Forbidden - no permission to list the permissions.'
-              }
-          404:
+              No permission:
+                status: 403
+                message: Forbidden - no permission to list the permissions
+          '404':
             description: Returned when no board or user with given id exists.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/definitions/Error'
             examples:
-              No board: {
-                status: 404,
-                message: 'Not found - board with id 1 does not exist.'
-              }
-              No user: {
-                status: 404,
-                message: 'Not found - user with id 1 does not exist.'
-              }
+              No board:
+                status: 404
+                message: Not found - board with id 1 does not exist
+              No user:
+                status: 404
+                message: Not found - user with id 1 does not exist
         """
 
     def put(self):
@@ -117,76 +100,70 @@ class UserPermissions(Resource):
         tags:
           - permission
         security:
-          -
+          - bearerAuth: []
         parameters:
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: board_id
             required: true
             description: ID of the board.
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: user_id
             required: true
             description: ID of the user.
-          - in: body
-            type: body
-            schema:
-              properties:
-                permissions:
-                  type: list
-                  required: true
-                  description: List of IDs of permissions.
-                  example: '[1, 2, 4]'
+        requestBody:
+          description: List of permission names.
+          required: true
+          content:
+            application/json:
+              schema:
+                properties:
+                  permissions:
+                    type: array
+                    items: string
+                    required: true
+                    example: [COLUMN_CREATE, BOARD_VIEW]
         responses:
-          204:
+          '204':
             description: Permissions successfully assigned. The response has no body.
-          401:
-            description: Returned when authentication token is missing or invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Invalid token: {
-                status: 401,
-                message: 'Unauthorized - no valid token present.'
-              }
-          403:
+          '401':
+            $ref: '#/components/responses/NoToken'
+          '403':
             description: Returned when user has no permissions to assign permissions.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              No permission: {
-                status: 403,
-                message: 'Forbidden - no permission to assign the permissions.'
-              }
-          404:
-            description: Returned when no board or user
-                         with given id exists, or when user with given id
-                         has no permissions assigned.
-            schema:
-              $ref: '#/definitions/Error'
+              No permission:
+                status: 403
+                message: Forbidden - no permission to assign the permissions
+          '404':
+            description: Returned when no board or user with given id exists.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              No board: {
-                status: 404,
-                message: 'Not found - board with id 1 does not exist.'
-              }
-              No user: {
-                status: 404,
-                message: 'Not found - user with id 1 does not exist.'
-              }
-              No permissions: {
-                status: 404,
-                message: 'Not found - user with id 1 has no permissions assigned.'
-              }
-          409:
+              No board:
+                status: 404
+                message: Not found - board with id 1 does not exist
+              No user:
+                status: 404
+                message: Not found - user with id 1 does not exist
+          '409':
             description: Returned when list of permissions contains nonexistent ids.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              Invalid permissions: {
-                status: 409,
-                message: 'Conflict - permissions with ids: [7344, 54367] do not exist.'
-              }
+              Invalid permissions:
+                status: 409
+                message: Conflict - permissions with names [COL_CR] do not exist
         """
 
     def delete(self):
@@ -199,55 +176,50 @@ class UserPermissions(Resource):
         tags:
           - permission
         security:
-          -
+          - authBearer: []
         parameters:
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: board_id
             required: true
             description: ID of the board.
-          - in: query
-            type: integer
+          - in: path
+            schema:
+              type: integer
             name: user_id
             required: true
             description: ID of the user.
         responses:
-          204:
+          '204':
             description: Permissions successfully deleted. The response has no body.
-          401:
-            description: Returned when authentication token is missing or invalid.
-            schema:
-              $ref: '#/definitions/Error'
-            examples:
-              Invalid token: {
-                status: 401,
-                message: 'Unauthorized - no valid token present.'
-              }
-          403:
+          '401':
+            $ref: '#/components/responses/NoToken'
+          '403':
             description: Returned when user has no permissions to delete permissions.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              No permission: {
-                status: 403,
-                message: 'Forbidden - no permission to delete the permissions.'
-              }
-          404:
+              No permission:
+                status: 403
+                message: Forbidden - no permission to delete the permissions
+          '404':
             description: Returned when no board or user with
                          given id exists, or when user has no permissions assigned.
-            schema:
-              $ref: '#/definitions/Error'
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
             examples:
-              No board: {
-                status: 404,
-                message: 'Not found - board with id 1 does not exist.'
-              }
-              No user: {
-                status: 404,
-                message: 'Not found - user with id 1 does not exist.'
-              }
-              No permissions: {
-                status: 404,
-                message: 'Not found - user with id 1 has no permissions assigned.'
-              }
+              No board:
+                status: 404
+                message: Not found - board with id 1 does not exist
+              No user:
+                status: 404
+                message: Not found - user with id 1 does not exist
+              No permissions:
+                status: 404
+                message: Not found - user with id 1 has no permissions assigned
         """
