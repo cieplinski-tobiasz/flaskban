@@ -264,7 +264,10 @@ class Column(DB.Model):
     board_id = DB.Column(DB.Integer, DB.ForeignKey('board.id'))
     board = relationship('Board', cascade='all,delete', back_populates='columns')
 
-    __table_args__ = (DB.UniqueConstraint('board_id', 'name', name='_name_board_id_uc'), )
+    __table_args__ = (
+        DB.UniqueConstraint('board_id', 'name', name='_name_board_id_uc'),
+        DB.UniqueConstraint('board_id', 'id', name='_col_id_board_id_uc')
+    )
 
     def exists_in_board_by_name(self, board_id):
         """
@@ -281,19 +284,21 @@ class Column(DB.Model):
                 (Column.board_id == board_id) & (Column.name == self.name)
             ).exists()).scalar()
 
-    def exists_in_board_by_id(self, board_id):
+    @classmethod
+    def exists_in_board_by_id(cls, board_id, column_id):
         """
         Checks if column with given id exists in a board with given id.
 
         Args:
             board_id (int): ID of the board.
+            column_id (int): ID of the column.
 
         Returns:
             True if column exists, false otherwise.
         """
         return DB.session.query(
-            Column.query.filter(
-                (Column.board_id == board_id) & (Column.id_ == self.id_)
+            cls.query.filter(
+                (cls.board_id == board_id) & (cls.id_ == column_id)
             ).exists()).scalar()
 
     def save_to_board(self, board_id):
@@ -320,3 +325,30 @@ class Column(DB.Model):
         self.board_id = board_id
         DB.session.add(self)
         DB.session.commit()
+
+    @classmethod
+    def find_by_ids(cls, *, board_id, column_id):
+        """
+        Returns column belonging to board with `board_id`,
+        if it exists within the board.
+
+        Args:
+            board_id (int): ID of the board.
+            column_id (int): ID of the column.
+
+        Returns:
+            Column, if it exists within the board.
+
+        Raises:
+            NotFoundError: If board with given id does not exist,
+                           or column with given id does not exist
+                           within the board.
+        """
+        if not Board.exists_by_id(board_id):
+            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
+
+        if not cls.exists_in_board_by_id(board_id, column_id):
+            raise errors.NotFoundError(
+                f'Column with id {column_id} does not exist in board with id {board_id}')
+
+        return cls.query.filter((cls.board_id == board_id) & (cls.id_ == column_id)).one()

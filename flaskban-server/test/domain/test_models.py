@@ -294,18 +294,25 @@ class ColumnTest(TestCase):
     Test case for column model.
     """
 
-    @mock.patch('domain.models.DB')
-    def test_exists_in_board_by_id_calls_db(self, db_mock):
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
+    def test_find_by_ids_raises_when_no_board(self, _):
         """
-        Tests if exists_in_board_by_id
-        delegates to database object.
+        Tests if find_by_ids raises NotFoundError
+        when board with given id does not exist.
         """
-        domain.models.Column.query = mock.Mock()
-        uut = domain.models.Column()
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Column.find_by_ids(board_id=1, column_id=2)
 
-        uut.exists_in_board_by_id(5)
-
-        db_mock.session.query.assert_called_once()
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=False)
+    def test_find_by_ids_raises_when_no_board(self, *_):
+        """
+        Tests if find_by_ids raises NotFoundError
+        when column with given id does not exist
+        within the board.
+        """
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Column.find_by_ids(board_id=1, column_id=2)
 
     @mock.patch('domain.models.DB')
     def test_exists_in_board_by_name_calls_db(self, db_mock):
@@ -319,6 +326,19 @@ class ColumnTest(TestCase):
         uut.exists_in_board_by_name(46)
 
         db_mock.session.query.assert_called_once()
+
+    @mock.patch('domain.models.DB')
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    def test_find_by_ids_calls_query(self, *_):
+        """
+        Tests if find_by_ids delegates
+        to query class object.
+        """
+        domain.models.Column.query = mock.Mock()
+        domain.models.Column.find_by_ids(board_id=1, column_id=2)
+
+        domain.models.Column.query.filter.assert_called_once()
 
     @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
     def test_save_to_board_raises_when_no_board_with_id(self, _):

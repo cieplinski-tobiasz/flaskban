@@ -195,7 +195,13 @@ class Board(Resource):
 
 
 class Column(Resource):
-    def get(self):
+
+    method_decorators = [
+        jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER,
+        errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND),
+    ]
+
+    def get(self, board_id, column_id):
         """
         Retrieve the column.
         ---
@@ -246,11 +252,13 @@ class Column(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No column:
                 status: 404
-                message: Not found - column with id 1 does not exist
+                message: Column with id 1 does not exist in board with id 1
         """
+        column = domain.models.Column.find_by_ids(board_id=board_id, column_id=column_id)
+        return domain.schemas.COLUMN_SCHEMA.dump(column), HTTPStatus.OK
 
     def delete(self):
         """
@@ -300,10 +308,10 @@ class Column(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No column:
                 status: 404
-                message: Not found - column with id 1 does not exist
+                message: Column with id 1 does not exist
         """
 
     def patch(self):
