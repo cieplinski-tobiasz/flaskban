@@ -234,7 +234,8 @@ class Board(DB.Model):
 
     def merge(self, other):
         """
-        Updates `self` object with fields from another Board.
+        Updates `self` object with fields from another Board
+        and stores the object in database.
         The only fields that are updated are `name` and `visibility`.
         Update occurs *only* if those fields are present in the `other` object,
         i. e. they are not equal to None.
@@ -247,6 +248,9 @@ class Board(DB.Model):
 
         if other.visibility:
             self.visibility = other.visibility
+
+        DB.session.merge(self)
+        DB.session.commit()
 
     def save(self):
         """
@@ -285,21 +289,6 @@ class Column(DB.Model):
         DB.UniqueConstraint('board_id', 'id', name='_col_id_board_id_uc')
     )
 
-    def exists_in_board_by_name(self, board_id):
-        """
-        Checks if column with given name exists in a board with given id.
-
-        Args:
-            board_id (int): ID of the board.
-
-        Returns:
-            True if column exists, false otherwise.
-        """
-        return DB.session.query(
-            Column.query.filter(
-                (Column.board_id == board_id) & (Column.name == self.name)
-            ).exists()).scalar()
-
     @classmethod
     def exists_in_board_by_id(cls, board_id, column_id):
         """
@@ -316,31 +305,6 @@ class Column(DB.Model):
             cls.query.filter(
                 (cls.board_id == board_id) & (cls.id_ == column_id)
             ).exists()).scalar()
-
-    def save_to_board(self, board_id):
-        """
-        Stores the column in the database,
-        associating it with board with given id.
-
-        Args:
-            board_id (int): ID of the board.
-
-        Raises:
-            NotFoundError: If board with given ID does not exist.
-            AlreadyExistsError: If column with given name already exists
-                                in a board with given ID.
-        """
-        if not Board.exists_by_id(board_id):
-            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
-
-        if self.exists_in_board_by_name(board_id):
-            raise errors.AlreadyExistsError(
-                f'Column with name "{self.name}" already exists in board with id {board_id}'
-            )
-
-        self.board_id = board_id
-        DB.session.add(self)
-        DB.session.commit()
 
     @classmethod
     def find_by_ids(cls, *, board_id, column_id):
@@ -387,4 +351,61 @@ class Column(DB.Model):
         """
         column = cls.find_by_ids(board_id=board_id, column_id=column_id)
         DB.session.delete(column)
+        DB.session.commit()
+
+    def exists_in_board_by_name(self, board_id):
+        """
+        Checks if column with given name exists in a board with given id.
+
+        Args:
+            board_id (int): ID of the board.
+
+        Returns:
+            True if column exists, false otherwise.
+        """
+        return DB.session.query(
+            Column.query.filter(
+                (Column.board_id == board_id) & (Column.name == self.name)
+            ).exists()).scalar()
+
+    def merge(self, other):
+        """
+        Updates `self` object with fields from another Column
+        and stores the object in the database.
+        The only field that is updated is `name`.
+        Update occurs *only* if `name` is present in the `other` object,
+        i. e. is not equal to None.
+
+        Args:
+            other (Column): Object that will be used for update of self.
+        """
+        if other.name:
+            self.name = other.name
+
+        DB.session.merge(self)
+        DB.session.commit()
+
+    def save_to_board(self, board_id):
+        """
+        Stores the column in the database,
+        associating it with board with given id.
+
+        Args:
+            board_id (int): ID of the board.
+
+        Raises:
+            NotFoundError: If board with given ID does not exist.
+            AlreadyExistsError: If column with given name already exists
+                                in a board with given ID.
+        """
+        if not Board.exists_by_id(board_id):
+            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
+
+        if self.exists_in_board_by_name(board_id):
+            raise errors.AlreadyExistsError(
+                f'Column with name "{self.name}" already exists in board with id {board_id}'
+            )
+
+        self.board_id = board_id
+        DB.session.add(self)
         DB.session.commit()

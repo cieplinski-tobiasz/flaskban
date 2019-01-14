@@ -137,7 +137,6 @@ class Board(Resource):
         request_board = domain.schemas.BOARD_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
         db_board = domain.models.Board.find_by_id(board_id)
         db_board.merge(request_board)
-        db_board.save()
         return domain.schemas.BOARD_SCHEMA.dump(db_board), HTTPStatus.OK
 
     def delete(self, board_id):
@@ -305,12 +304,12 @@ class Column(Resource):
                 message: Board with id 1 does not exist
               No column:
                 status: 404
-                message: Column with id 1 does not exist
+                message: Column with id 1 does not exist in board with id 1
         """
         domain.models.Column.delete(board_id=board_id, column_id=column_id)
         return {}, HTTPStatus.NO_CONTENT
 
-    def patch(self):
+    def patch(self, board_id, column_id):
         """
         Change the name of the column.
         ---
@@ -372,11 +371,16 @@ class Column(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No column:
                 status: 404
-                message: Not found - column with id 1 does not exist
+                message: Column with id 1 does not exist in board with id 1
         """
+        body = request.get_json()
+        request_column = domain.schemas.COLUMN_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
+        db_column = domain.models.Column.find_by_ids(board_id=board_id, column_id=column_id)
+        db_column.merge(request_column)
+        return domain.schemas.COLUMN_SCHEMA.dump(db_column), HTTPStatus.OK
 
 
 class Task(Resource):

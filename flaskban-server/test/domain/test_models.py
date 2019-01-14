@@ -13,7 +13,8 @@ class BoardTest(TestCase):
     Test case for board model.
     """
 
-    def test_merge_copies_name_and_visibility(self):
+    @mock.patch('domain.models.DB')
+    def test_merge_copies_name_and_visibility(self, _):
         """
         Tests if merge method assigns `name` and `visibility`
         when the fields are present in the `other` object.
@@ -26,7 +27,8 @@ class BoardTest(TestCase):
         self.assertEqual(uut.name, 'post-update')
         self.assertEqual(uut.visibility, 'public')
 
-    def test_merge_does_not_copy_id(self):
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_id(self, _):
         """
         Tests if merge methods *does not* copy id of the `other` object.
         """
@@ -37,7 +39,8 @@ class BoardTest(TestCase):
 
         self.assertEqual(uut.id_, 0)
 
-    def test_merge_does_not_copy_nones(self):
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_nones(self, _):
         """
         Tests if merge method *does not* assign `name` and `visibility`
         when the fields are *not* present in the `other` object.
@@ -49,6 +52,19 @@ class BoardTest(TestCase):
 
         self.assertEqual(uut.name, 'pre-update')
         self.assertEqual(uut.visibility, 'private')
+
+    @mock.patch('domain.models.DB')
+    def test_merge_delegates_to_db(self, db_mock):
+        """
+        Tests if merge delegates to database object.
+        """
+        uut = domain.models.Board()
+        other = domain.models.Board()
+
+        uut.merge(other)
+
+        db_mock.session.merge.assert_called_once_with(uut)
+        db_mock.session.commit.assert_called_once()
 
     @mock.patch('domain.models.DB')
     def test_save_calls_db(self, db_mock):
@@ -330,6 +346,59 @@ class ColumnTest(TestCase):
     """
     Test case for column model.
     """
+
+    @mock.patch('domain.models.DB')
+    def test_merge_copies_name(self, _):
+        """
+        Tests if merge method assigns `name`
+        when it is present in the `other` object.
+        """
+        uut = domain.models.Column(name='pre-update')
+        other = domain.models.Column(name='post-update')
+
+        uut.merge(other)
+
+        self.assertEqual(uut.name, 'post-update')
+
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_ids(self, _):
+        """
+        Tests if merge methods *does not* copy
+        id and board_id of the `other` object.
+        """
+        uut = domain.models.Column(id_=0, board_id=0)
+        other = domain.models.Column(id_=1, board_id=1)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.id_, 0)
+        self.assertEqual(uut.board_id, 0)
+
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_nones(self, _):
+        """
+        Tests if merge method *does not* assign `name`
+        when it is *not* present in the `other` object.
+        """
+        uut = domain.models.Column(name='pre-update')
+        other = domain.models.Column(name=None)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.name, 'pre-update')
+
+    @mock.patch('domain.models.DB')
+    def test_merge_delegates_to_db(self, db_mock):
+        """
+        Tests if merge delegates to database object.
+        """
+        uut = domain.models.Column(id_=0, board_id=0)
+        other = domain.models.Column(id_=1, board_id=1)
+
+        uut.merge(other)
+
+        db_mock.session.merge.assert_called_once_with(uut)
+        db_mock.session.commit.assert_called_once()
 
     @mock.patch('domain.models.DB')
     @mock.patch.object(domain.models.Column, 'find_by_ids')
