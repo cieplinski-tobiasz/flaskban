@@ -434,7 +434,7 @@ class ColumnTest(TestCase):
 
     @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
     @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=False)
-    def test_find_by_ids_raises_when_no_board(self, *_):
+    def test_find_by_ids_raises_when_no_column(self, *_):
         """
         Tests if find_by_ids raises NotFoundError
         when column with given id does not exist

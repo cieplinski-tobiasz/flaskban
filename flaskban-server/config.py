@@ -25,4 +25,5 @@ def get_config(name):
 
     raise ValueError(f'No config named {name}')
 
+
 TEMPLATE_FILENAME = 'swagger_docs.yml'
