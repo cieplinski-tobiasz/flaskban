@@ -150,10 +150,10 @@ class UserPermissions(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No user:
                 status: 404
-                message: Not found - user with id 1 does not exist
+                message: User with id 1 does not exist
           '409':
             description: Returned when list of permissions contains nonexistent ids.
             content:
