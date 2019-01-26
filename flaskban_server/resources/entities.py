@@ -13,11 +13,8 @@ import errors
 class Board(Resource):
 
     method_decorators = [
-        jwt_required,
-        handle_error(JWTExtendedException,
-                     status=HTTPStatus.UNAUTHORIZED, message='No valid token present'),
-        handle_error(BadRequest, ValidationError, InvalidDataError,
-                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body'),
+        jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER,
+        errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND),
     ]
 
     def get(self, board_id):

@@ -19,13 +19,7 @@ class Boards(Resource):
         method_decorators: Decorators applied to every method in this class.
     """
 
-    method_decorators = [
-        handle_error(JWTExtendedException,
-                     status=HTTPStatus.UNAUTHORIZED, message='No valid token present'),
-        handle_error(BadRequest, ValidationError, InvalidDataError,
-                     status=HTTPStatus.BAD_REQUEST, message='Invalid request body'),
-        jwt_required
-    ]
+    method_decorators = [jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER]
 
     def get(self):
         """
