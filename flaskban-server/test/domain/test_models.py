@@ -457,6 +457,19 @@ class ColumnTest(TestCase):
         db_mock.session.query.assert_called_once()
 
     @mock.patch('domain.models.DB')
+    def test_exists_in_board_by_id_calls_db(self, db_mock):
+        """
+        Tests if exists_in_board_by_id
+        delegates to database object.
+        """
+        domain.models.Column.query = mock.Mock()
+        uut = domain.models.Column()
+
+        uut.exists_in_board_by_id(board_id=23, column_id=46)
+
+        db_mock.session.query.assert_called_once()
+
+    @mock.patch('domain.models.DB')
     @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
     @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
     def test_find_by_ids_calls_query(self, *_):
