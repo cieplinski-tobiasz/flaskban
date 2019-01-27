@@ -1,6 +1,11 @@
 """
 The module contains ORM domain for all domain specific objects.
 """
+
+# pylint: disable=E1101
+# Pylint has known issues when working with Flask-SQLAlchemy extension
+# https://github.com/PyCQA/pylint/issues/1973
+
 from enum import Enum
 
 from flask_jwt_extended import create_access_token

@@ -1,3 +1,7 @@
+"""
+The module contains functions related to
+initializing the application.
+"""
 from flask import Flask
 
 from config import get_config
@@ -11,11 +15,31 @@ from resources.perms import Permissions, UserPermissions
 
 
 def _init_extensions(app, *exts):
+    """
+    Calls init_app on app for every extension passed to the method.
+
+    Args:
+        app (Flask): Instance of Flask class.
+        exts: List of extensions to be applied.
+    """
     for ext in exts:
         ext.init_app(app)
 
 
 def create_app(config_name):
+    """
+    Initializes the application.
+
+    The function adds resources to the REST API
+    and initializes all the required extensions.
+
+    If the function is called with `config_name` equal to 'dev',
+    the database will be dropped and recreated.
+
+    Args:
+        config_name (str): Name of the configuration.
+                           Currently only 'dev' name is supported.
+    """
     app = Flask(__name__)
     app.config.from_object(get_config(config_name))
 

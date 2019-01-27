@@ -1,3 +1,13 @@
+"""
+The module contains resources that implement HTTP methods
+allowing for manipulation of domain objects and retrieving entities of them.
+"""
+
+# pylint: disable=no-self-use
+# The reason for disabling self-use is that Flask-RESTful extension
+# expects HTTP methods declared as methods of the Resource subclass.
+# Without the self argument, the routing does not work as expected.
+
 from http import HTTPStatus
 
 from flask import request
@@ -11,6 +21,15 @@ import errors
 
 
 class Board(Resource):
+    """
+    Defines methods for /boards/{board_id} endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
 
     method_decorators = [
         jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER,
@@ -185,6 +204,15 @@ class Board(Resource):
 
 
 class Column(Resource):
+    """
+    Defines methods for /boards/{board_id}/columns/{column_id} endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
 
     method_decorators = [
         jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER,
@@ -381,6 +409,16 @@ class Column(Resource):
 
 
 class Task(Resource):
+    """
+    Defines methods for /boards/{board_id}/tasks/{task_id} endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
     def get(self):
         """
         Retrieve the task.

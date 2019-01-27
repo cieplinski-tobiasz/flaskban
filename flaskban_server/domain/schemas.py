@@ -1,7 +1,14 @@
 """
-The model contains schemas
+The module contains schemas
 for all domain specific objects
 used for validation and serialization.
+
+Attributes:
+    BOARD_SCHEMA: Schema for validating board objects.
+    COLUMN_SCHEMA: Schema for validating column objects.
+    TASK_SCHEMA: Schema for validating task objects.
+    LOGIN_SCHEMA: Schema for validating user info for login.
+    REGISTER_SCHEMA: Schema for validating user info for registration.
 """
 
 from marshmallow import Schema, fields, validates_schema, post_load, ValidationError

@@ -1,7 +1,24 @@
+"""
+The module contains resources that implement HTTP methods
+allowing for manipulation of permissions granted to users.
+"""
+
+# pylint: disable=no-self-use
+# The reason for disabling self-use is that Flask-RESTful extension
+# expects HTTP methods declared as methods of the Resource subclass.
+# Without the self argument, the routing does not work as expected.
+
 from flask_restful import Resource
 
 
 class Permissions(Resource):
+    """
+    Defines methods for /permissions endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+    """
+
     def get(self):
         """
         List permissions.
@@ -29,6 +46,13 @@ class Permissions(Resource):
 
 
 class UserPermissions(Resource):
+    """
+    Defines methods for /boards/{board_id}/permissions/{user_id} endpoint.
+
+    Every method for this endpoint requires the authentication token
+    to be present in `Authorization` header.
+    """
+
     def get(self):
         """
         List permissions of a user.

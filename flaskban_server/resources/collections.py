@@ -1,3 +1,13 @@
+"""
+The module contains resources that implement HTTP methods
+allowing for manipulation of domain objects and retrieving collections of them.
+"""
+
+# pylint: disable=no-self-use
+# The reason for disabling self-use is that Flask-RESTful extension
+# expects HTTP methods declared as methods of the Resource subclass.
+# Without the self argument, the routing does not work as expected.
+
 from http import HTTPStatus
 
 from flask import request

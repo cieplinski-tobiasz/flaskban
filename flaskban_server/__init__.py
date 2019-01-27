@@ -1,6 +1,11 @@
+"""
+The module serves as an entry point
+for uWSGI. It creates the application
+using factory method and runs it.
+"""
 from app import create_app
 
-app = create_app('dev')
+APP = create_app('dev')
 
 if __name__ == '__main__':
-    app.run()
+    APP.run()

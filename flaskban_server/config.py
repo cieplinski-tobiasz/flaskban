@@ -1,10 +1,11 @@
 """
-The module contains objects and dictionares
+The module contains objects and dictionaries
 used for configuring the application.
 
 Attributes:
     TEMPLATE_FILENAME (str): Name of the file passed to Swagger __init__ method.
 """
+
 
 class Config:
     SWAGGER = {

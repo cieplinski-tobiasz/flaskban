@@ -1,3 +1,13 @@
+"""
+The module contains resources that implement HTTP methods
+allowing for authentication, i.e. login and registration.
+"""
+
+# pylint: disable=no-self-use
+# The reason for disabling self-use is that Flask-RESTful extension
+# expects HTTP methods declared as methods of the Resource subclass.
+# Without the self argument, the routing does not work as expected.
+
 from http import HTTPStatus
 
 from flask import request
@@ -9,6 +19,13 @@ import errors
 
 
 class Login(Resource):
+    """
+    Defines methods for /auth/login endpoint.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
     method_decorators = [errors.BAD_REQUEST_ERROR_HANDLER]
 
     @errors.handle_error(errors.UnauthorizedError, status=HTTPStatus.UNAUTHORIZED)
@@ -54,6 +71,13 @@ class Login(Resource):
 
 
 class Register(Resource):
+    """
+    Defines methods for /auth/register endpoint.
+
+    Properties:
+        method_decorators: Decorators applied to every method in this class.
+    """
+
     method_decorators = [errors.BAD_REQUEST_ERROR_HANDLER]
 
     @errors.handle_error(errors.AlreadyExistsError, status=HTTPStatus.CONFLICT)

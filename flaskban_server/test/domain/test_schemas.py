@@ -2,6 +2,11 @@
 The module contains unit tests for schemas contained in `domain.schemas` module.
 """
 
+# pylint: disable=no-self-use
+# The reason for disabling self-use is that unittest package
+# expects tests to be class methods.
+# Without the self argument, the tests do not run.
+
 from unittest import mock, TestCase
 
 import marshmallow
