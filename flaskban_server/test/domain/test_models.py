@@ -179,12 +179,48 @@ class UserTest(TestCase):
     Test case for user model.
     """
 
+    def test_exists_calls_db(self):
+        """
+        Tests if exists method
+        delegates to query class object's method
+        """
+        domain.models.User.query = mock.Mock()
+        uut = domain.models.User(name='john', password='pwd', email='john.smith@gmail.com')
+
+        uut.exists()
+
+        domain.models.User.query.filter.assert_called_once()
+
+    def test_find_by_name_calls_db(self):
+        """
+        Tests if find_by_name
+        delegates to query class object's method
+        """
+        domain.models.User.query = mock.Mock()
+        name = 'test'
+
+        domain.models.User.find_by_name(name)
+
+        domain.models.User.query.filter_by.assert_called_once_with(name=name)
+
+    def test_find_by_email_calls_db(self):
+        """
+        Tests if find_by_email
+        delegates to query class object's method
+        """
+        domain.models.User.query = mock.Mock()
+        email = 'test@test.com'
+
+        domain.models.User.find_by_email(email)
+
+        domain.models.User.query.filter_by.assert_called_once_with(email=email)
+
     def test_save_calls_db(self):
         """
         Tests if save method delegates to database object.
         """
         uut = domain.models.User(name='john', password='pwd', email='john.smith@gmail.com')
-        uut._already_saved = mock.Mock(return_value=False)
+        uut.exists = mock.Mock(return_value=False)
 
         with mock.patch('domain.models.DB') as mocked_db:
             uut.save()
@@ -199,7 +235,7 @@ class UserTest(TestCase):
 
         with self.assertRaises(errors.AlreadyExistsError):
             uut = domain.models.User(name='present', password='pwd', email='already@exists.com')
-            uut._already_saved = mock.Mock(return_value=True)
+            uut.exists = mock.Mock(return_value=True)
 
             uut.save()
 

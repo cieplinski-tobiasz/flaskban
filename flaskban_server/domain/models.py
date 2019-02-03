@@ -79,7 +79,7 @@ class User(DB.Model):
         """
         return cls.query.filter_by(email=email)
 
-    def _already_saved(self):
+    def exists(self):
         """
         Queries the database to check if user with given name or email has been stored.
 
@@ -103,7 +103,7 @@ class User(DB.Model):
         if not self.name or not self._password or not self.email:
             raise errors.InvalidDataError('Required fields are not present')
 
-        if self._already_saved():
+        if self.exists():
             raise errors.AlreadyExistsError('User already exists')
 
         DB.session.add(self)
