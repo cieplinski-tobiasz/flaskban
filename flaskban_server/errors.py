@@ -107,6 +107,13 @@ class NotFoundError(ClientError):
     """
 
 
+class InconsistentDataError(ClientError):
+    """
+    Error raised when client sends inconsistent data in body,
+    e.g. body refers to data that does not exist.
+    """
+
+
 JWT_ERROR_HANDLER = handle_error(JWTExtendedException, PyJWTError,
                                  status=HTTPStatus.UNAUTHORIZED,
                                  message='No valid token present')

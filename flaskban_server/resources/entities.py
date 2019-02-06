@@ -419,7 +419,12 @@ class Task(Resource):
         method_decorators: Decorators applied to every method in this class.
     """
 
-    def get(self):
+    method_decorators = [
+        jwt_required, errors.JWT_ERROR_HANDLER, errors.BAD_REQUEST_ERROR_HANDLER,
+        errors.handle_error(errors.NotFoundError, status=HTTPStatus.NOT_FOUND),
+    ]
+
+    def get(self, board_id, task_id):
         """
         Retrieve the task.
         ---
@@ -470,13 +475,15 @@ class Task(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No task:
                 status: 404
-                message: Not found - task with id 1 does not exist
+                message: Task with id 1 does not exist in board with id 1
         """
+        task = domain.models.Task.find_by_ids(board_id=board_id, task_id=task_id)
+        return domain.schemas.TASK_SCHEMA.dump(task), HTTPStatus.OK
 
-    def delete(self):
+    def delete(self, board_id, task_id):
         """
         Delete the task.
         ---
@@ -523,13 +530,17 @@ class Task(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No task:
                 status: 404
-                message: Not found - task with id 1 does not exist
+                message: Task with id 1 does not exist
         """
+        domain.models.Task.delete(board_id=board_id, task_id=task_id)
+        return {}, HTTPStatus.NO_CONTENT
 
-    def patch(self):
+    @errors.handle_error(errors.AlreadyExistsError, errors.InconsistentDataError,
+                         status=HTTPStatus.CONFLICT)
+    def patch(self, board_id, task_id):
         """
         Change the properties of the task.
         ---
@@ -557,10 +568,11 @@ class Task(Resource):
           required: true
           description: The fields taken into consideration are
                        "column_id", "description", "name" and "user_id".
-                       Extra fields are ignored. User id and column id must be valid,
-                       i. e. column must exist within the board
-                       and user with given id must have permissions
-                       to be assigned to task.
+                       Extra fields are ignored. User id, column id and name
+                       must be valid, i.e. user with given id
+                       must be permitted to be assigned to the task,
+                       column with given must exist within the board
+                       and name of the task must be unique within the column.
           content:
             application/json:
               schema:
@@ -605,10 +617,10 @@ class Task(Resource):
             examples:
               No board:
                 status: 404
-                message: Not found - board with id 1 does not exist
+                message: Board with id 1 does not exist
               No task:
                 status: 404
-                message: Not found - task with id 1 does not exist
+                message: Task with id 1 does not exist
           '409':
             description: Returned when no column with
                          given column_id exists, or user with given user_id
@@ -620,11 +632,19 @@ class Task(Resource):
             examples:
               No column:
                 status: 409
-                message: Invalid column id - column with id 1 does not exist
+                message: Column with id 1 does not exist
               No user:
                 status: 409
-                message: Invalid user id - user with id 1 does not exist
+                message: User with id 1 does not exist
               Insufficient permissions for user:
                 status: 409
-                message: Insufficient permissions - user with id 1 cannot be assigned to a task
+                message: User with id 1 cannot be assigned to a task
+              Task already exists:
+                status: 409
+                message: Task with name "Do the shopping" already exists in column with id 1
         """
+        body = request.get_json()
+        request_task = domain.schemas.TASK_SCHEMA.load(body, partial=True, unknown=EXCLUDE)
+        db_task = domain.models.Task.find_by_ids(board_id=board_id, task_id=task_id)
+        db_task.merge(request_task)
+        return domain.schemas.TASK_SCHEMA.dump(db_task), HTTPStatus.OK

@@ -203,6 +203,19 @@ class UserTest(TestCase):
 
         domain.models.User.query.filter_by.assert_called_once_with(name=name)
 
+    @mock.patch('domain.models.DB')
+    def test_exists_by_id_calls_db(self, db_mock):
+        """
+        Tests if exists_by_id
+        delegates to database object.
+        """
+        domain.models.User.query = mock.Mock()
+        id_ = 5
+
+        domain.models.User.exists_by_id(id_)
+
+        db_mock.session.query.assert_called_once()
+
     def test_find_by_email_calls_db(self):
         """
         Tests if find_by_email
@@ -568,6 +581,10 @@ class TaskTest(TestCase):
     Test case for task model.
     """
 
+    # pylint: disable=too-many-public-methods
+    # The reason for disabling too-many-public-methods
+    # is that the size of the test suite should not be limited by pylint
+
     @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
     def test_exists_in_column_by_name_raises_when_no_board(self, _):
         """
@@ -603,6 +620,99 @@ class TaskTest(TestCase):
 
         db_mock.session.query.assert_called_once()
 
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_exists_in_board_raises_when_no_board(self, *_):
+        """
+        Tests if exists_in_board raises NotFoundError
+        when board with given id does not exist.
+        """
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.exists_in_board(board_id=5, task_id=5)
+
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_exists_in_board_calls_db(self, db_mock, _):
+        """
+        Tests if exists_in_board delegates to database object.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        domain.models.Task.exists_in_board(board_id=5, task_id=5)
+
+        db_mock.session.query.assert_called_once()
+
+    @mock.patch('domain.models.DB')
+    def test_exists_by_id_calls_db(self, db_mock):
+        """
+        Tests if exists_by_id delegates to database object.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        domain.models.Task.exists_by_id(5)
+
+        db_mock.session.query.assert_called_once()
+
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=False)
+    def test_delete_raises_when_no_board(self, _):
+        """
+        Tests if delete raises NotFoundError
+        when board with given id does not exist.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.delete(board_id=5, task_id=5)
+
+    @mock.patch.object(domain.models.Task, 'exists_by_id', return_value=False)
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_delete_raises_when_no_task(self, *_):
+        """
+        Tests if delete raises NotFoundError
+        when task with given id does not exist.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.delete(board_id=5, task_id=5)
+
+    @mock.patch.object(domain.models.Task, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Board, 'exists_by_id', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_delete_removes_task_with_given_id(self, db_mock, *_):
+        """
+        Tests if delete retrieves the task from the database
+        and deletes it.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        domain.models.Task.delete(board_id=5, task_id=5)
+
+        db_mock.session.delete.assert_called_once()
+        db_mock.session.commit.assert_called_once()
+
+    @mock.patch.object(domain.models.Task, 'exists_in_board', return_value=False)
+    def test_find_by_ids_raises_when_no_task(self, _):
+        """
+        Tests if find_by_ids raises NotFoundError
+        when task with given id does not exist in the board.
+        """
+        with self.assertRaises(errors.NotFoundError):
+            domain.models.Task.find_by_ids(board_id=5, task_id=5)
+
+    @mock.patch.object(domain.models.Task, 'exists_in_board', return_value=True)
+    def test_find_by_ids_calls_db(self, _):
+        """
+        Tests if find_by_ids delegates to query object.
+        """
+        domain.models.Task.query = mock.Mock()
+
+        domain.models.Task.find_by_ids(board_id=5, task_id=5)
+
+        domain.models.Task.query.filter.assert_called_once()
+
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
     @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=True)
     @mock.patch('domain.models.DB')
     def test_save_to_board_raises_when_exists_in_column(self, *_):
@@ -616,9 +726,23 @@ class TaskTest(TestCase):
         with self.assertRaises(errors.AlreadyExistsError):
             uut.save_to_board(4)
 
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=False)
     @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
     @mock.patch('domain.models.DB')
-    def test_save_to_board_calls_db(self, db_mock, _):
+    def test_save_to_board_raises_when_no_user(self, *_):
+        """
+        Tests if save_to_board raises InconsistentDataError
+        when user id is present and user with given ID does not exist.
+        """
+        uut = domain.models.Task(user_id=1)
+
+        with self.assertRaises(errors.InconsistentDataError):
+            uut.save_to_board(4)
+
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_save_to_board_calls_db(self, db_mock, *_):
         """
         Tests if save_to_board
         delegates to database object.
@@ -629,3 +753,124 @@ class TaskTest(TestCase):
 
         db_mock.session.add.assert_called_once_with(uut)
         db_mock.session.commit.assert_called_once()
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_copies_fields(self, *_):
+        """
+        Tests if merge method copies fields
+        `column_id`, `description`, `name` and `user_id`
+        when they are present in the `other` object.
+        """
+        uut = domain.models.Task()
+        other = domain.models.Task(column_id=1, description='post',
+                                   name='post', user_id=1)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.column_id, 1)
+        self.assertEqual(uut.user_id, 1)
+        self.assertEqual(uut.name, 'post')
+        self.assertEqual(uut.description, 'post')
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_id(self, *_):
+        """
+        Tests if merge method does *not* copy id field.
+        """
+        uut = domain.models.Task(id_=1)
+        other = domain.models.Task(id_=2)
+
+        uut.merge(other)
+
+        self.assertEqual(uut.id_, 1)
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_does_not_copy_nones(self, *_):
+        """
+        Tests if merge method does *not* copy fields
+        that are not present in the `other` object.
+        """
+        uut = domain.models.Task(column_id=1, user_id=1, name='pre', description='pre')
+        other = domain.models.Task()
+
+        uut.merge(other)
+
+        self.assertEqual(uut.column_id, 1)
+        self.assertEqual(uut.user_id, 1)
+        self.assertEqual(uut.name, 'pre')
+        self.assertEqual(uut.description, 'pre')
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_delegates_to_db(self, db_mock, *_):
+        """
+        Tests if merge method copies fields
+        `column_id`, `description`, `name` and `user_id`
+        when they are present in the `other` object.
+        """
+        uut = domain.models.Task()
+        other = domain.models.Task(column_id=1, description='post',
+                                   name='post', user_id=1)
+
+        uut.merge(other)
+
+        db_mock.session.merge.assert_called_once_with(uut)
+        db_mock.session.commit.assert_called_once()
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=False)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_raises_when_no_column(self, *_):
+        """
+        Tests if merge method raises InconsistentDataError
+        when column with id that the task is assigned to
+        does not exist.
+        """
+        uut = domain.models.Task()
+        other = domain.models.Task()
+
+        with self.assertRaises(errors.InconsistentDataError):
+            uut.merge(other)
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=False)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=False)
+    @mock.patch('domain.models.DB')
+    def test_merge_raises_when_no_user(self, *_):
+        """
+        Tests if merge method raises InconsistentDataError
+        when user with id that the task is assigned to
+        does not exist.
+        """
+        uut = domain.models.Task()
+        other = domain.models.Task()
+
+        with self.assertRaises(errors.InconsistentDataError):
+            uut.merge(other)
+
+    @mock.patch.object(domain.models.Column, 'exists_in_board_by_id', return_value=True)
+    @mock.patch.object(domain.models.User, 'exists_by_id', return_value=True)
+    @mock.patch.object(domain.models.Task, 'exists_in_column_by_name', return_value=True)
+    @mock.patch('domain.models.DB')
+    def test_merge_raises_when_task_already_exists(self, *_):
+        """
+        Tests if merge method raises AlreadyExistsError
+        when task with given name already exists in given column.
+        """
+        uut = domain.models.Task()
+        other = domain.models.Task()
+
+        with self.assertRaises(errors.AlreadyExistsError):
+            uut.merge(other)

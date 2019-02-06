@@ -54,6 +54,19 @@ class User(DB.Model):
         self._password = pbkdf2_sha256.hash(plain)
 
     @classmethod
+    def exists_by_id(cls, id_):
+        """
+        Checks if user with given id exists.
+
+        Args:
+            id_ (int): ID of the user.
+
+        Returns:
+            True if user exists, false otherwise.
+        """
+        return DB.session.query(cls.query.filter((cls.id_ == id_)).exists()).scalar()
+
+    @classmethod
     def find_by_name(cls, name):
         """
         Queries the database for a user with given name.
@@ -426,6 +439,7 @@ class Task(DB.Model):
     Attributes:
         id_ (int): ID of the task.
         name (str): Name of the task.
+        description (str): Description of the task.
         board_id (int): ID of the board that the task is in.
         column_id (int): ID of the column the task is assigned to.
         user_id (int): ID of the user assigned to the task.
@@ -438,6 +452,29 @@ class Task(DB.Model):
     user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=True)
 
     __table_args__ = (DB.UniqueConstraint('column_id', 'name', name='_name_col_id_uc'), )
+
+    @classmethod
+    def exists_in_board(cls, *, board_id, task_id):
+        """
+        Checks if task with given id exists in a board with given id.
+
+        Args:
+            board_id (int): ID of the board.
+            task_id (int): ID of the task.
+
+        Returns:
+            True if task exists, false otherwise.
+
+        Raises:
+            NotFoundError: If board does not exist.
+        """
+        if not Board.exists_by_id(board_id):
+            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
+
+        return DB.session.query(
+            Task.query.filter(
+                (Task.board_id == board_id) & (Task.id_ == task_id)
+            ).exists()).scalar()
 
     @classmethod
     def exists_in_column_by_name(cls, *, board_id, column_id, name):
@@ -467,6 +504,66 @@ class Task(DB.Model):
                 (Task.board_id == board_id) & (Task.column_id == column_id) & (Task.name == name)
             ).exists()).scalar()
 
+    @classmethod
+    def exists_by_id(cls, id_):
+        """
+        Queries the database to check if task with given id
+        has already been stored.
+
+        Args:
+            id_: ID of the task.
+
+        Returns:
+            True if task exists, False otherwise.
+        """
+        return DB.session.query(cls.query.filter(cls.id_ == id_).exists()).scalar()
+
+    @classmethod
+    def delete(cls, *, board_id, task_id):
+        """
+        Deletes the task with given id from the database.
+
+        Args:
+            board_id (int): ID of the board.
+            task_id (int): ID of the task.
+
+        Raises:
+            NotFoundError: If task or board with given id does not exist.
+        """
+        if not Board.exists_by_id(board_id):
+            raise errors.NotFoundError(f'Board with id {board_id} does not exist')
+
+        if not cls.exists_by_id(task_id):
+            raise errors.NotFoundError(f'Task with id {task_id} does not exist')
+
+        board = cls.query.filter_by(id_=task_id).one()
+        DB.session.delete(board)
+        DB.session.commit()
+
+    @classmethod
+    def find_by_ids(cls, *, board_id, task_id):
+        """
+        Returns task belonging to board with `board_id`,
+        if it exists within the board.
+
+        Args:
+            board_id (int): ID of the board.
+            task_id (int): ID of the task.
+
+        Returns:
+            Task, if it exists within the board.
+
+        Raises:
+            NotFoundError: If board with given id does not exist,
+                           or task with given id does not exist
+                           within the board.
+        """
+        if not cls.exists_in_board(board_id=board_id, task_id=task_id):
+            raise errors.NotFoundError(
+                f'Task with id {task_id} does not exist in board with id {board_id}')
+
+        return cls.query.filter((cls.board_id == board_id) & (cls.id_ == task_id)).one()
+
     def save_to_board(self, board_id):
         """
         Stores the task in the database,
@@ -476,9 +573,13 @@ class Task(DB.Model):
             NotFoundError: If board or column with given ID does not exist.
             AlreadyExistsError: If task with given name already exists
                                 in a column with given ID.
+            InconsistentDataError: When user with given ID does not exist.
         """
 
         self.board_id = board_id
+
+        if self.user_id and not User.exists_by_id(self.user_id):
+            raise errors.InconsistentDataError(f'User with id {self.user_id} does not exist')
 
         if Task.exists_in_column_by_name(board_id=board_id,
                                          column_id=self.column_id, name=self.name):
@@ -486,4 +587,58 @@ class Task(DB.Model):
                 f'Task with name "{self.name}" already exists in column with id {self.column_id}')
 
         DB.session.add(self)
+        DB.session.commit()
+
+    def merge(self, other):
+        """
+        Updates `self` object with fields from another Task
+        and stores the object in the database.
+        The fields that may be updated are: `column_id`,
+        `description`, `name` and `user_id`.
+        The field must be valid, i.e. column with given id
+        must exist within the board, the name of the task
+        must be unique withing the column,
+        and user with given id must have permissions
+        to be assigned to the task.
+        If any of the fields is None, the update of that field
+        will *not* occur.
+
+        Args:
+            other (Task): Object that will be used for update of self.
+
+        Raises:
+            NotFoundError: If column with given id does not exist
+                           within the board.
+            AlreadyExistsError: If task with given name already exists
+                                in column with updated id.
+        """
+        new_column = other.column_id if other.column_id else self.column_id
+
+        if not Column.exists_in_board_by_id(self.board_id, new_column):
+            raise errors.InconsistentDataError(
+                f'Column with id {new_column} does not exist in board with id {self.board_id}"')
+
+        self.column_id = new_column
+
+        new_user = other.user_id if other.user_id else self.user_id
+
+        if not User.exists_by_id(new_user):
+            raise errors.InconsistentDataError(f'User with id {new_user} does not exist')
+
+        self.user_id = new_user
+
+        if Task.exists_in_column_by_name(
+                board_id=self.board_id,
+                column_id=other.column_id,
+                name=other.name):
+            raise errors.AlreadyExistsError(
+                f'Task with name "{other.name}" already exists in column with id {other.column_id}')
+
+        if other.name:
+            self.name = other.name
+
+        if other.description:
+            self.description = other.description
+
+        DB.session.merge(self)
         DB.session.commit()
